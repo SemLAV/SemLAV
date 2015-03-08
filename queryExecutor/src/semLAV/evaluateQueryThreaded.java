@@ -285,29 +285,21 @@ public class evaluateQueryThreaded {
         PipedInputStream[] inArray = null;
         Counter includedViews = new Counter();
         HashSet<Predicate> includedViewsSet = new HashSet<Predicate>();
+        numberTimer.start();
+        HashMap<Triple,ArrayList<Predicate>> buckets = null;
         if (sorted) {
-            numberTimer.start();
-            HashMap<Triple,ArrayList<Predicate>> buckets = viewSelection2(cq, ms, constants, catalog);
-            tinput = new IncludingStreamV3(buckets, graphUnion, includedViews, catalog, constants, wrapperTimer, graphCreationTimer, executionTimer, numberTimer, info2, ids, includedViewsSet, testing);
-            tinput.start();
+            buckets = viewSelection2(cq, ms, constants, catalog);
         } else {
-            numberTimer.start();
-            HashMap<Triple,ArrayList<Predicate>> buckets = viewSelection3(cq, ms, constants);
-            tinput = new IncludingStreamV3(buckets, graphUnion, includedViews, catalog, constants, wrapperTimer, graphCreationTimer, executionTimer, numberTimer, info2, ids, includedViewsSet, testing);
-            tinput.start();
-/*
-            final PipedOutputStream[] outArray = new PipedOutputStream[n];
-            inArray = new PipedInputStream[n];
-            for (int i = 0; i < n; i++) {
-                outArray[i] = new PipedOutputStream();
-                inArray[i] = new PipedInputStream(outArray[i]);
-            }
-            numberTimer.start();
-            tRelViews = new RelevantViewsSelector2(outArray, cq, ms, constants);
-            tRelViews.start();
-            tinput = new IncludingStreamV2(inArray, graphUnion, includedViews, catalog, constants, wrapperTimer, graphCreationTimer, executionTimer, numberTimer, info2, ids, includedViewsSet, testing);
-            tinput.start();*/
+            buckets = viewSelection3(cq, ms, constants);
         }
+        if (true) {
+            tinput = new IncludingStreamV3Pool(buckets, graphUnion, includedViews, catalog, constants, wrapperTimer, graphCreationTimer, executionTimer, numberTimer, info2, ids, includedViewsSet, testing);
+        } else {
+            tinput = new IncludingStreamV3(buckets, graphUnion, includedViews, catalog, constants, wrapperTimer, graphCreationTimer, executionTimer, numberTimer, info2, ids, includedViewsSet, testing);
+        }
+        tinput.start();
+
+
         Thread tquery = new QueryingStream(graphUnion, null, q, 
                             executionTimer, numberTimer, includedViews, info, info3, dir, wrapperTimer, graphCreationTimer, ids, includedViewsSet, timeout, testing, output, visualization);
         tquery.start();

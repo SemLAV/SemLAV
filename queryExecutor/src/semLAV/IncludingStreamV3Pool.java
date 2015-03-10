@@ -37,16 +37,14 @@ public class IncludingStreamV3Pool extends Thread {
     ExecutorService executor;
     boolean finish = false;
     boolean isReseting = false;
-
-    //nb Workers
-    int nbWorkers = 10;
+    int nbWorker;
 
     public IncludingStreamV3Pool(HashMap<Triple, ArrayList<Predicate>> buckets, Model gu, Counter iv, Catalog c,
                                  HashMap<String, String> cs, Timer wrapperTimer,
                                  Timer graphCreationTimer, Timer executionTimer,
                                  Timer totalTimer, BufferedWriter info2, Counter ids, HashSet<Predicate> includedViewsSet,
-                                 boolean testing) {
-
+                                 boolean testing, int nbWoker) {
+        this.nbWorker = nbWoker;
         this.buckets = buckets;
         this.graphUnion = gu;
         this.includedViews = iv;
@@ -73,7 +71,7 @@ public class IncludingStreamV3Pool extends Thread {
         this.runNow = new boolean[keys.length];
         this.testing = testing;
 
-        executor = Executors.newFixedThreadPool(nbWorkers);
+        executor = Executors.newFixedThreadPool(nbWoker);
         for (int j = 0; j < keys.length; j++) {
             finished[j] = false;
         }
@@ -114,7 +112,7 @@ public class IncludingStreamV3Pool extends Thread {
     protected void workerError(int i, boolean outOfMemmory) {
         isReseting = true;
         executor.shutdownNow();
-        executor = Executors.newFixedThreadPool(this.nbWorkers);
+        executor = Executors.newFixedThreadPool(this.nbWorker);
         for (int j = 0; j < keys.length; j++) {
             runNow[j] = false;
         }

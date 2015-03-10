@@ -74,18 +74,15 @@ public class IncludingStreamV3Pool extends Thread {
         this.testing = testing;
 
         executor = Executors.newFixedThreadPool(nbWorkers);
-        boolean[] finished = new boolean[keys.length];
-        boolean[] runNow = new boolean[keys.length];
-        for (int j = 0; i < keys.length; i++) {
+        for (int j = 0; j < keys.length; j++) {
             finished[j] = false;
         }
-        for (int j = 0; i < keys.length; i++) {
+        for (int j = 0; j < keys.length; j++) {
             runNow[j] = false;
         }
     }
 
     public void reset() {
-        isReseting = true;
         if (testing) {
         message(this.ids.getValue() + "\t" + this.includedViews.getValue() + "\t"
                                               + TimeUnit.MILLISECONDS.toMillis(wrapperTimer.getTotalTime())
@@ -98,7 +95,6 @@ public class IncludingStreamV3Pool extends Thread {
         executionTimer.start();
         includedViews.reset();
         }
-        isReseting = false;
     }
 
     private void message(String s) {
@@ -116,9 +112,10 @@ public class IncludingStreamV3Pool extends Thread {
     }
 
     protected void workerError(int i, boolean outOfMemmory) {
+        isReseting = true;
         executor.shutdownNow();
         executor = Executors.newFixedThreadPool(this.nbWorkers);
-        for (int j = 0; i < keys.length; i++) {
+        for (int j = 0; j < keys.length; j++) {
             runNow[j] = false;
         }
         this.current[i] = this.current[i] - 1;
@@ -141,6 +138,7 @@ public class IncludingStreamV3Pool extends Thread {
                 totalTimer.resume();
             }
         }
+        isReseting = false;
     }
 
     public void run () {
@@ -160,7 +158,6 @@ public class IncludingStreamV3Pool extends Thread {
                     runNow[i] = true;
 
                 }
-                // à voir
                 if (this.isInterrupted()) {
                     break;
                 }

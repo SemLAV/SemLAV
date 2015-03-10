@@ -32,13 +32,13 @@ public class IncludingStreamV3Worker implements Runnable {
         pool.graphUnion.enterCriticalSection(Lock.WRITE);
         try {
             System.out.println("including view: "+view);
-            //wrapperTimer.resume();
+            long start = System.currentTimeMillis();
             Model tmp =  pool.catalog.getModel(view, pool.constants);
-            //wrapperTimer.stop();
+            pool.wrapperTimer.addTime(System.currentTimeMillis()-start);
             System.out.println("temporal model size: "+tmp.size());
-            //graphCreationTimer.resume();
+            start = System.currentTimeMillis();
             pool.graphUnion.add(tmp);
-            //graphCreationTimer.stop();
+            pool.graphCreationTimer.addTime(System.currentTimeMillis() - start);
             pool.includedViews.increase();
         } catch (OutOfMemoryError oome) {
             pool.workerError(i, true);

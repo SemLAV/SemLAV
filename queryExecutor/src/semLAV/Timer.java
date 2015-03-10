@@ -21,6 +21,10 @@ public class Timer {
 	this.elapsedTime += this.endTime - this.startTime;
   }
 
+  public void addTime(long elapsedTime) {
+    this.elapsedTime += this.elapsedTime;
+  }
+
   public void resume() {
 	this.startTime = System.currentTimeMillis();
   }

@@ -36,6 +36,7 @@ public class IncludingStreamV3Pool extends Thread {
     boolean[] runNow;
     ExecutorService executor;
     boolean finish = false;
+    boolean isReseting = false;
 
     //nb Workers
     int nbWorkers = 10;
@@ -84,7 +85,7 @@ public class IncludingStreamV3Pool extends Thread {
     }
 
     public void reset() {
-
+        isReseting = true;
         if (testing) {
         message(this.ids.getValue() + "\t" + this.includedViews.getValue() + "\t"
                                               + TimeUnit.MILLISECONDS.toMillis(wrapperTimer.getTotalTime())
@@ -97,6 +98,7 @@ public class IncludingStreamV3Pool extends Thread {
         executionTimer.start();
         includedViews.reset();
         }
+        isReseting = false;
     }
 
     private void message(String s) {
@@ -146,6 +148,7 @@ public class IncludingStreamV3Pool extends Thread {
     try {
 
             while (!finish) {
+                while (isReseting) {}
                 for (int i = 0; i < keys.length; i++) {
                     String v = null;
                     if (finished[i] || runNow[i]) {
@@ -157,6 +160,7 @@ public class IncludingStreamV3Pool extends Thread {
                     runNow[i] = true;
 
                 }
+                // à voir
                 if (this.isInterrupted()) {
                     break;
                 }

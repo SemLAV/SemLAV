@@ -32,6 +32,11 @@ public class IncludingStreamV3Worker implements Runnable {
         pool.graphUnion.enterCriticalSection(Lock.WRITE);
         try {
             System.out.println(Thread.currentThread().getName()+" :including view: "+view);
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             long start = System.currentTimeMillis();
             Model tmp =  pool.catalog.getModel(view, pool.constants);
             pool.wrapperTimer.addTime(System.currentTimeMillis()-start);

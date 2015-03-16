@@ -31,11 +31,11 @@ public class IncludingStreamV3Worker implements Runnable {
             if (evaluateQueryThreaded.include(pool.includedViewsSet, view, pool.constants)) {
         pool.graphUnion.enterCriticalSection(Lock.WRITE);
         try {
-            System.out.println("including view: "+view);
+            System.out.println(Thread.currentThread().getName()+" :including view: "+view);
             long start = System.currentTimeMillis();
             Model tmp =  pool.catalog.getModel(view, pool.constants);
             pool.wrapperTimer.addTime(System.currentTimeMillis()-start);
-            System.out.println("temporal model size: "+tmp.size());
+            System.out.println(Thread.currentThread().getName()+" :temporal model size: "+tmp.size());
             start = System.currentTimeMillis();
             pool.graphUnion.add(tmp);
             pool.graphCreationTimer.addTime(System.currentTimeMillis() - start);

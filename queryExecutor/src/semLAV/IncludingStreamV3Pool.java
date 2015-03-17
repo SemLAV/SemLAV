@@ -153,6 +153,7 @@ public class IncludingStreamV3Pool extends Thread {
 
                     Runnable worker = new IncludingStreamV3Worker(this, i);
                     executor.execute(worker);
+                    System.out.println("new worker run");
                     runNow[i] = true;
 
                 }

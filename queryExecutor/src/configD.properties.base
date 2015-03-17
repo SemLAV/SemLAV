@@ -13,3 +13,4 @@ timeout=TIMEOUT
 sorted=true
 testing=true
 visualization=false
+nbWorker=15

@@ -23,6 +23,7 @@ public class IncludingStreamV3Worker implements Runnable {
 
     @Override
     public void run() {
+        pool.runNow[i] = true;
         Triple k = pool.keys[i];
         ArrayList<Predicate> rvs = pool.buckets.get(k);
         if (pool.current[i] < rvs.size()) {

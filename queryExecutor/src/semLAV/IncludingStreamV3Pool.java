@@ -146,15 +146,13 @@ public class IncludingStreamV3Pool extends Thread {
             while (!finish) {
                 while (isReseting) {}
                 for (int i = 0; i < keys.length; i++) {
-                    String v = null;
+                    System.out.println(i + ":" + runNow[i]);
                     if (finished[i] || runNow[i]) {
                         continue;
                     }
 
                     Runnable worker = new IncludingStreamV3Worker(this, i);
                     executor.execute(worker);
-                    System.out.println("new worker run");
-                    runNow[i] = true;
 
                 }
                 if (this.isInterrupted()) {

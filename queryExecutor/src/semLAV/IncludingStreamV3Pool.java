@@ -148,7 +148,7 @@ public class IncludingStreamV3Pool extends Thread {
                     ArrayList<Predicate> rvs = this.buckets.get(k);
                     for(int j = 0; j<rvs.size(); j++) {
                         Predicate view = rvs.get(j);
-                        runNow[i].add(j);
+                        runNow[i].add(Integer.valueOf(j));
                         Runnable worker = new IncludingStreamV3Worker(this, i, j, view);
                         executor.execute(worker);
                     }

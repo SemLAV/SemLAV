@@ -17,20 +17,18 @@ public class IncludingStreamV3Worker implements Runnable {
 
     private IncludingStreamV3Pool pool;
     private int i;
+    private int j;
+    private Predicate view;
 
-    public IncludingStreamV3Worker(IncludingStreamV3Pool pool, int i) {
+    public IncludingStreamV3Worker(IncludingStreamV3Pool pool, int i, int j, Predicate view) {
         this.pool = pool;
         this.i = i;
+        this.j = j;
+        this.view = view;
     }
 
     @Override
     public void run() {
-        pool.runNow[i] = true;
-        Triple k = pool.keys[i];
-        ArrayList<Predicate> rvs = pool.buckets.get(k);
-        if (pool.current[i] < rvs.size()) {
-            Predicate view = rvs.get(pool.current[i]);
-            pool.current[i] = pool.current[i] + 1;
             if (evaluateQueryThreaded.include(pool.includedViewsSet, view, pool.constants)) {
         try {
             System.out.println(Thread.currentThread().getName()+" :including view: "+view);
@@ -47,7 +45,6 @@ public class IncludingStreamV3Worker implements Runnable {
                     start = System.currentTimeMillis();
                     pool.graphUnion.add(stmt);
                     pool.graphCreationTimer.addTime(System.currentTimeMillis() - start);
-                    System.out.println(Thread.currentThread().getName()+" : new truple added");
                 } finally {
                     pool.graphUnion.leaveCriticalSection();
                 }
@@ -58,10 +55,14 @@ public class IncludingStreamV3Worker implements Runnable {
         } catch (com.hp.hpl.jena.n3.turtle.TurtleParseException tpe) {
             pool.workerError(i, false);
         }
-            }
-        } else {
-            pool.finished[i] = true;
+    }
+        for (Integer k : pool.runNow[i]) {
+            if(k.intValue() == j)
+                pool.runNow[i].remove(k);
         }
-        pool.runNow[i] = false;
+
+
+    if(pool.runNow[i].size() == 0)
+        pool.finished[i] = true;
     }
 }

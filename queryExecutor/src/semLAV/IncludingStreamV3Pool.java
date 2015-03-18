@@ -6,10 +6,7 @@ import com.hp.hpl.jena.shared.Lock;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -33,7 +30,7 @@ public class IncludingStreamV3Pool extends Thread {
     Triple[] keys;
     boolean testing;
     boolean[] finished;
-    boolean[] runNow;
+    List<Integer>[] runNow;
     ExecutorService executor;
     boolean finish = false;
     boolean isReseting = false;
@@ -68,15 +65,13 @@ public class IncludingStreamV3Pool extends Thread {
             i++;
         }
         this.finished = new boolean[keys.length];
-        this.runNow = new boolean[keys.length];
+        this.runNow = new List[keys.length];
         this.testing = testing;
 
         executor = Executors.newFixedThreadPool(nbWoker);
         for (int j = 0; j < keys.length; j++) {
             finished[j] = false;
-        }
-        for (int j = 0; j < keys.length; j++) {
-            runNow[j] = false;
+            runNow[j] = new ArrayList<Integer>();
         }
     }
 
@@ -114,7 +109,7 @@ public class IncludingStreamV3Pool extends Thread {
         executor.shutdownNow();
         executor = Executors.newFixedThreadPool(this.nbWorker);
         for (int j = 0; j < keys.length; j++) {
-            runNow[j] = false;
+            runNow[j] = new ArrayList();
         }
         this.current[i] = this.current[i] - 1;
         reset();
@@ -146,13 +141,17 @@ public class IncludingStreamV3Pool extends Thread {
             while (!finish) {
                 while (isReseting) {}
                 for (int i = 0; i < keys.length; i++) {
-                    System.out.println(i + ":" + runNow[i]);
-                    if (finished[i] || runNow[i]) {
+                    if (finished[i] && runNow[i].size() == 0) {
                         continue;
                     }
-
-                    Runnable worker = new IncludingStreamV3Worker(this, i);
-                    executor.execute(worker);
+                    Triple k = this.keys[i];
+                    ArrayList<Predicate> rvs = this.buckets.get(k);
+                    for(int j = 0; j<rvs.size(); j++) {
+                        Predicate view = rvs.get(j);
+                        runNow[i].add(j);
+                        Runnable worker = new IncludingStreamV3Worker(this, i, j, view);
+                        executor.execute(worker);
+                    }
 
                 }
                 if (this.isInterrupted()) {

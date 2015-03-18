@@ -9,6 +9,7 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 
 /**
  * Created by Maxime on 08/03/15.
@@ -56,9 +57,10 @@ public class IncludingStreamV3Worker implements Runnable {
             pool.workerError(i, false);
         }
     }
-        for (Object k : pool.runNow[i]) {
-            if(((Integer)k).intValue() == j)
-                pool.runNow[i].remove(k);
+        Iterator<Integer> iter = pool.runNow[i].iterator();
+        while(iter.hasNext()){
+            if(iter.next().intValue() == j)
+                iter.remove();
         }
 
 

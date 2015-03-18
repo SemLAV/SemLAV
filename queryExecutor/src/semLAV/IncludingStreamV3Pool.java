@@ -30,7 +30,7 @@ public class IncludingStreamV3Pool extends Thread {
     Triple[] keys;
     boolean testing;
     boolean[] finished;
-    List<Integer>[] runNow;
+    List[] runNow;
     ExecutorService executor;
     boolean finish = false;
     boolean isReseting = false;
@@ -109,7 +109,7 @@ public class IncludingStreamV3Pool extends Thread {
         executor.shutdownNow();
         executor = Executors.newFixedThreadPool(this.nbWorker);
         for (int j = 0; j < keys.length; j++) {
-            runNow[j] = new ArrayList();
+            runNow[j] = new ArrayList<Integer>();
         }
         this.current[i] = this.current[i] - 1;
         reset();

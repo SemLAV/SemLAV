@@ -177,7 +177,7 @@ public class IncludingStreamV3Pool extends Thread {
     public void removeRunNow(int i, int j) {
         synchronized(runNow[i]) {
             Iterator<Integer> iterator = runNow[i].iterator();
-            while (iterator.hasNext())
+            while (iterator.hasNext()) {
                 Integer nb = iterator.next();
                 if(nb.intValue() == j)
                     runNow[i].remove(nb);

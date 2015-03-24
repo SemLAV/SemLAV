@@ -51,8 +51,10 @@ public class IncludingStreamV3Worker implements Runnable {
             }
             pool.includedViews.increase();
         } catch (OutOfMemoryError oome) {
+            System.out.println("OutOfMemoryError");
             pool.workerError(i, true);
         } catch (com.hp.hpl.jena.n3.turtle.TurtleParseException tpe) {
+            System.out.println("TurtleParseException");
             pool.workerError(i, false);
         }
     }

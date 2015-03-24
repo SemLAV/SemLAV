@@ -185,4 +185,10 @@ public class IncludingStreamV3Pool extends Thread {
         }
 
     }
+
+    public int sizeRunNow(int i) {
+        synchronized(runNow[i]) {
+            return runNow[i].size();
+        }
+    }
 }

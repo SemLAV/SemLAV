@@ -59,7 +59,7 @@ public class IncludingStreamV3Worker implements Runnable {
         pool.removeRunNow(i, j);
 
 
-    if(pool.runNow[i].size() == 0)
+    if(pool.sizeRunNow(i) == 0)
         pool.finished[i] = true;
     }
 }

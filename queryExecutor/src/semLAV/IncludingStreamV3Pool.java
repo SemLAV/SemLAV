@@ -196,4 +196,9 @@ public class IncludingStreamV3Pool extends Thread {
             runNow[i].add(Integer.valueOf(j));
         }
     }
+
+    public void myInterrupt() {
+        executor.shutdown();
+    }
 }
+

@@ -141,14 +141,14 @@ public class IncludingStreamV3Pool extends Thread {
             while (!finish) {
                 while (isReseting) {}
                 for (int i = 0; i < keys.length; i++) {
-                    if (finished[i] && runNow[i].size() == 0) {
+                    if (finished[i] && sizeRunNow(i) == 0) {
                         continue;
                     }
                     Triple k = this.keys[i];
                     ArrayList<Predicate> rvs = this.buckets.get(k);
                     for(int j = 0; j<rvs.size(); j++) {
                         Predicate view = rvs.get(j);
-                        runNow[i].add(Integer.valueOf(j));
+                        addRunNow(i, j);
                         Runnable worker = new IncludingStreamV3Worker(this, i, j, view);
                         executor.execute(worker);
                     }
@@ -188,6 +188,12 @@ public class IncludingStreamV3Pool extends Thread {
     public int sizeRunNow(int i) {
         synchronized(runNow[i]) {
             return runNow[i].size();
+        }
+    }
+
+    public void addRunNow(int i, int j) {
+        synchronized(runNow[i]) {
+            runNow[i].add(Integer.valueOf(j));
         }
     }
 }

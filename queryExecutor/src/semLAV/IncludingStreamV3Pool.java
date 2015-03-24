@@ -181,10 +181,16 @@ public class IncludingStreamV3Pool extends Thread {
                 Integer nb = (Integer) iterator.next();
                 System.out.println(nb);
                 if(nb.intValue() == j)
-                    runNow[i].remove(nb);
+                    removeRunNow(i, j);
             }
         }
 
+    }
+
+    public void removeRunNow(int i, Integer j) {
+        synchronized(runNow[i]) {
+            runNow[i].remove(j);
+        }
     }
 
     public int sizeRunNow(int i) {

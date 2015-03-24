@@ -71,7 +71,7 @@ public class IncludingStreamV3Pool extends Thread {
         executor = Executors.newFixedThreadPool(nbWoker);
         for (int j = 0; j < keys.length; j++) {
             finished[j] = false;
-            runNow[j] = new ArrayList<Integer>();
+            runNow[j] = Collections.synchronizedList(new ArrayList<Integer>());
         }
     }
 
@@ -109,7 +109,7 @@ public class IncludingStreamV3Pool extends Thread {
         executor.shutdownNow();
         executor = Executors.newFixedThreadPool(this.nbWorker);
         for (int j = 0; j < keys.length; j++) {
-            runNow[j] = new ArrayList<Integer>();
+            runNow[j] = Collections.synchronizedList(new ArrayList<Integer>());
         }
         this.current[i] = this.current[i] - 1;
         reset();
@@ -172,5 +172,17 @@ public class IncludingStreamV3Pool extends Thread {
         } catch (InterruptedException ie) {
             System.out.println("View inclusion ended");
         }
+    }
+
+    public void removeRunNow(int i, int j) {
+        synchronized(runNow[i]) {
+            Iterator a = runNow[i].iterator(); // Must be in synchronized block
+            while (a.hasNext()) {
+                Integer nb = (Integer) a.next();
+                if(nb.intValue() == j)
+                    runNow[i].remove(nb);
+            }
+        }
+
     }
 }

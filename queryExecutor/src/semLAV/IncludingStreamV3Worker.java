@@ -56,10 +56,7 @@ public class IncludingStreamV3Worker implements Runnable {
             pool.workerError(i, false);
         }
     }
-        for (Object k : pool.runNow[i]) {
-            if(((Integer)k).intValue() == j)
-                pool.runNow[i].remove(k);
-        }
+        pool.removeRunNow(i, j);
 
 
     if(pool.runNow[i].size() == 0)

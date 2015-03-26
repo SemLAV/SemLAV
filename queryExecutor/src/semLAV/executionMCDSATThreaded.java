@@ -8,6 +8,7 @@ import java.io.*;
 import com.hp.hpl.jena.ontology.*;
 import com.hp.hpl.jena.reasoner.*;
 //import static ch.lambdaj.Lambda.*;
+import com.hp.hpl.jena.shared.LockSRMW;
 import com.hp.hpl.jena.util.FileManager;
 import com.hp.hpl.jena.sparql.mgt.Explain.InfoLevel;
 import com.hp.hpl.jena.shared.Lock;
@@ -235,7 +236,7 @@ public class executionMCDSATThreaded {
         info.newLine();
         info.flush();
         HashSet<String> loadedViews = new HashSet<String>();
-        Model graphUnion = ModelFactory.createDefaultModel();
+        Model graphUnion = ModelFactory.createDefaultModel(new LockSRMW());
         Timer numberTimer = new Timer();
         Timer executionTimer = new Timer();
         Timer wrapperTimer = new Timer();

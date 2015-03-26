@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.HashMap;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.shared.Lock;
+import com.hp.hpl.jena.shared.LockSRMW;
 
 public class IncludingStreamRW extends Thread {
 
@@ -49,7 +50,7 @@ public class IncludingStreamRW extends Thread {
                 this.counter.increase();
                 for(Predicate pred : rew.getGoals()){
                     if(loadedViews.add(pred.getName())){
-                        graphUnion.enterCriticalSection(Lock.WRITE);
+                        graphUnion.enterCriticalSection(LockSRMW.WRITE);
                         try {
                             wrapperTimer.resume();
                             Model m = catalog.getModel(pred, constants);

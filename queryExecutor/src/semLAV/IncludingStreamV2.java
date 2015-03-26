@@ -2,6 +2,8 @@ package semLAV;
 
 import java.util.*;
 import java.io.*;
+
+import com.hp.hpl.jena.shared.LockSRMW;
 import com.hp.hpl.jena.util.FileManager;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.shared.Lock;
@@ -110,7 +112,7 @@ public class IncludingStreamV2 extends Thread {
                         }
                         finish = false;
                         if (evaluateQueryThreaded.include(includedViewsSet, view, constants)) {
-                            graphUnion.enterCriticalSection(Lock.WRITE);
+                            graphUnion.enterCriticalSection(LockSRMW.WRITE);
                             try {
                                 wrapperTimer.resume();
                                 Model tmp =  catalog.getModel(view, constants);

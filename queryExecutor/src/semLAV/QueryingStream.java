@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.io.File;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.shared.LockSRMW;
 
 public class QueryingStream extends Thread {
 
@@ -79,7 +80,7 @@ public class QueryingStream extends Thread {
             m = ModelFactory.createInfModel (reasoner, m);
         }
         if (this.counter.getValue() != this.lastValue) {
-            m.enterCriticalSection(Lock.READ);
+            m.enterCriticalSection(LockSRMW.READ);
             tempValue = this.counter.getValue();
             id = this.ids.getValue();
             this.ids.increase();
@@ -230,6 +231,7 @@ public class QueryingStream extends Thread {
                 output.newLine();
                 executionTimer.resume();
                 timer.resume();
+                System.out.println("-->"+TimeUnit.MILLISECONDS.toMillis(timer.getTotalTime()));
                 if (TimeUnit.MILLISECONDS.toMillis(timer.getTotalTime()) >= timeout) {
                     break;
                 }
@@ -276,7 +278,7 @@ public class QueryingStream extends Thread {
 
         try {
             OutputStream out = new FileOutputStream("/tmp/"+tmpFile);
-            m.enterCriticalSection(Lock.READ);
+            m.enterCriticalSection(LockSRMW.READ);
             m.write(out, "N-TRIPLE");
             m.leaveCriticalSection();
             File f = new File("/tmp/"+tmpFile);

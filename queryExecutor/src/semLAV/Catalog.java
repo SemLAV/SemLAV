@@ -2,6 +2,7 @@ package semLAV;
 
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.shared.LockSRMW;
 import com.hp.hpl.jena.util.FileManager;
 import java.io.*;
 import java.util.*;
@@ -92,7 +93,7 @@ public class Catalog {
             res = FileManager.get().loadModel(this.execDir+str+".n3");
         } catch (com.hp.hpl.jena.shared.NotFoundException e) {
             System.out.println("file "+this.execDir+str+".n3 does not exist");
-            res = ModelFactory.createDefaultModel();
+            res = ModelFactory.createDefaultModel(new LockSRMW());
         }
         return res;
     }

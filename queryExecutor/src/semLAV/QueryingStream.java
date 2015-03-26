@@ -231,8 +231,8 @@ public class QueryingStream extends Thread {
                 output.newLine();
                 executionTimer.resume();
                 timer.resume();
-                System.out.println("-->"+TimeUnit.MILLISECONDS.toMillis(timer.getTotalTime()));
                 if (TimeUnit.MILLISECONDS.toMillis(timer.getTotalTime()) >= timeout) {
+                    System.out.println("-->end");
                     break;
                 }
             }

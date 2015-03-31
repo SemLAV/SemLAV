@@ -313,16 +313,13 @@ public class QueryingStream extends Thread {
                 }
             });
         try {
-            while (true) {
+            while ((timeout > 0 && TimeUnit.MILLISECONDS.toMillis(timer.getTotalTime()) >= timeout) || this.isInterrupted()) {
                 Thread.sleep(time);
                 if (testing) {
                     evaluateQuery();
                 }
-                if ((timeout > 0 && TimeUnit.MILLISECONDS.toMillis(timer.getTotalTime()) >= timeout) || this.isInterrupted()) {
-                    System.out.println("endQuery");
-                    break;
-                }
             }
+            System.out.println("endQuery");
         } catch (InterruptedException ie) {
             System.out.println("Query evaluation ended");
         } finally {

@@ -138,7 +138,7 @@ public class IncludingStreamV3Pool extends Thread {
 
     try {
 
-            while (!finish) {
+            while (!finish && !this.isInterrupted()) {
                 while (isReseting) {}
                 for (int i = 0; i < keys.length; i++) {
                     if (finished[i] && sizeRunNow(i) == 0) {
@@ -155,9 +155,6 @@ public class IncludingStreamV3Pool extends Thread {
                     }
 
                 }
-                if (this.isInterrupted()) {
-                    break;
-                }
                 finish = true;
                 for (int i = 0; i < keys.length; i++) {
                     if (!finished[i]) {
@@ -167,9 +164,9 @@ public class IncludingStreamV3Pool extends Thread {
                 }
                 Thread.sleep(1);
             }
-            executor.shutdown();
+            executor.shutdownNow();
 
-            while (!executor.isTerminated()) {}
+            //while (!executor.isTerminated()) {}
         } catch (InterruptedException ie) {
             System.out.println("View inclusion ended");
         }

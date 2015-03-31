@@ -318,7 +318,6 @@ public class evaluateQueryThreaded {
                 ((IncludingStreamV3Pool) tinput).myInterrupt();
                 System.out.println("queryKO2");
                 tinput.interrupt();
-
                 System.out.println("queryKO3");
                 /*if (!sorted) {
                     tRelViews.interrupt();

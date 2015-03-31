@@ -305,8 +305,8 @@ public class evaluateQueryThreaded {
         tquery.start();
 
         while (tinput.isAlive() || tquery.isAlive()) {
-            System.out.println("tinput:"+tinput.isAlive()+" "+tinput.isInterrupted());
-            System.out.println("tquery:"+tquery.isAlive()+" "+tquery.isInterrupted());
+            //System.out.println("tinput:"+tinput.isAlive()+" "+tinput.isInterrupted());
+            //System.out.println("tquery:"+tquery.isAlive()+" "+tquery.isInterrupted());
             if (!tinput.isAlive()) {
                 tquery.interrupt();
                 /*if (!sorted) {
@@ -317,9 +317,8 @@ public class evaluateQueryThreaded {
                 System.out.println("queryKO");
                 ((IncludingStreamV3Pool) tinput).myInterrupt();
                 System.out.println("queryKO2");
-                tinput.interrupt();
-                while (!tinput.isInterrupted()) {
-                    System.out.print(".");
+                while (tinput.isAlive()) {
+                    tinput.interrupt();
                 }
                 System.out.println("queryKO3");
                 /*if (!sorted) {

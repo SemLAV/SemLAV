@@ -163,8 +163,11 @@ public class IncludingStreamV3Pool extends Thread {
                     }
                 }
                 Thread.sleep(1);
+                System.out.println("PoolRun");
             }
-            executor.shutdownNow();
+            System.out.println("endPool");
+            if(!executor.isShutdown())
+                executor.shutdownNow();
 
             //while (!executor.isTerminated()) {}
         } catch (InterruptedException ie) {

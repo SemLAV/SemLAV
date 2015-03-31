@@ -22,7 +22,7 @@ public class Timer {
   }
 
   public void addTime(long elapsedTime) {
-    this.elapsedTime += this.elapsedTime;
+    this.elapsedTime += elapsedTime;
   }
 
   public void resume() {

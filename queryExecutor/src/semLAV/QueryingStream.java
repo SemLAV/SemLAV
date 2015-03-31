@@ -319,6 +319,7 @@ public class QueryingStream extends Thread {
                     evaluateQuery();
                 }
                 if ((timeout > 0 && TimeUnit.MILLISECONDS.toMillis(timer.getTotalTime()) >= timeout) || this.isInterrupted()) {
+                    System.out.println("endQuery");
                     break;
                 }
             }

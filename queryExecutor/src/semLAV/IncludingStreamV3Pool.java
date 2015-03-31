@@ -166,7 +166,7 @@ public class IncludingStreamV3Pool extends Thread {
             }
             System.out.println("endPool");
 
-            while (!executor.isTerminated()) {}
+            //while (!executor.isTerminated()) {}
         } catch (InterruptedException ie) {
             System.out.println("View inclusion ended");
         }

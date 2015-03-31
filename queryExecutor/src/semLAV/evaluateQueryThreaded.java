@@ -770,7 +770,7 @@ public class evaluateQueryThreaded {
         return cs.containsKey(argA) && (!cs.containsKey(argB) || !argA.equals(argB));
     }
 
-    synchronized protected static boolean include(HashSet<Predicate> res, Predicate v, HashMap<String, String> cs) {
+    protected static boolean include(HashSet<Predicate> res, Predicate v, HashMap<String, String> cs) {
     
     	int vsize = v.getArguments().size();
     	ArrayList<String> argsV = v.getArguments();

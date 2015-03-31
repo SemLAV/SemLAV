@@ -139,12 +139,9 @@ public class IncludingStreamV3Pool extends Thread {
     try {
 
             while (!(finish || this.isInterrupted())) {
-                while (isReseting) {
-                    System.out.print("isReseting");
-                }
+                while (isReseting) {}
                 for (int i = 0; i < keys.length; i++) {
                     if (finished[i] || (sizeRunNow(i) != 0)) {
-                        System.out.println("continue");
                         continue;
                     }
                     Triple k = this.keys[i];
@@ -166,13 +163,10 @@ public class IncludingStreamV3Pool extends Thread {
                     }
                 }
                 Thread.sleep(1);
-                System.out.println(this.isInterrupted());
             }
             System.out.println("endPool");
-            if(!executor.isShutdown())
-                executor.shutdownNow();
 
-            //while (!executor.isTerminated()) {}
+            while (!executor.isTerminated()) {}
         } catch (InterruptedException ie) {
             System.out.println("View inclusion ended");
         }

@@ -314,12 +314,9 @@ public class evaluateQueryThreaded {
                 }*/
             }
             if (!tquery.isAlive())   {
-                System.out.println("queryKO");
                 ((IncludingStreamV3Pool) tinput).myInterrupt();
-                System.out.println("queryKO2");
                 tinput.interrupt();
-
-                System.out.println("queryKO3");
+                while (!tinput.isInterrupted()) {}
                 /*if (!sorted) {
                     tRelViews.interrupt();
                 }*/
@@ -776,7 +773,7 @@ public class evaluateQueryThreaded {
         return cs.containsKey(argA) && (!cs.containsKey(argB) || !argA.equals(argB));
     }
 
-    protected static boolean include(HashSet<Predicate> res, Predicate v, HashMap<String, String> cs) {
+    synchronized protected static boolean include(HashSet<Predicate> res, Predicate v, HashMap<String, String> cs) {
     
     	int vsize = v.getArguments().size();
     	ArrayList<String> argsV = v.getArguments();

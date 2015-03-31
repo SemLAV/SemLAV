@@ -139,7 +139,9 @@ public class IncludingStreamV3Pool extends Thread {
     try {
 
             while (!finish && !this.isInterrupted()) {
-                while (isReseting) {}
+                while (isReseting) {
+                    System.out.print("isReseting");
+                }
                 for (int i = 0; i < keys.length; i++) {
                     if (finished[i] && sizeRunNow(i) == 0) {
                         continue;

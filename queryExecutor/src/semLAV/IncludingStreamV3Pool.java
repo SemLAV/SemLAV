@@ -138,7 +138,7 @@ public class IncludingStreamV3Pool extends Thread {
 
     try {
 
-            while (!finish && !this.isInterrupted()) {
+            while (!(finish || this.isInterrupted())) {
                 while (isReseting) {
                     System.out.print("isReseting");
                 }
@@ -165,6 +165,7 @@ public class IncludingStreamV3Pool extends Thread {
                     }
                 }
                 Thread.sleep(1);
+                System.out.println(this.isInterrupted());
             }
             System.out.println("endPool");
             if(!executor.isShutdown())

@@ -143,7 +143,7 @@ public class IncludingStreamV3Pool extends Thread {
                     System.out.print("isReseting");
                 }
                 for (int i = 0; i < keys.length; i++) {
-                    if (finished[i] && sizeRunNow(i) == 0) {
+                    if (finished[i]) {
                         continue;
                     }
                     Triple k = this.keys[i];
@@ -201,7 +201,6 @@ public class IncludingStreamV3Pool extends Thread {
     }
 
     public boolean myInterrupt() {
-
         executor.shutdownNow();
         return executor.isShutdown();
     }

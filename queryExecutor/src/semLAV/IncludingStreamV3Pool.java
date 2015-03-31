@@ -198,8 +198,9 @@ public class IncludingStreamV3Pool extends Thread {
         }
     }
 
-    public void myInterrupt() {
-        executor.shutdown();
+    public boolean myInterrupt() {
+        executor.shutdownNow();
+        return executor.isShutdown();
     }
 }
 

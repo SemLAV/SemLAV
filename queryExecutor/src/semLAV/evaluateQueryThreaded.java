@@ -314,9 +314,9 @@ public class evaluateQueryThreaded {
             if (!tquery.isAlive()) {
                 System.out.println("queryKO");
                 ((IncludingStreamV3Pool) tinput).myInterrupt();
-                System.out.println("queryKO");
+                System.out.println("queryKO2");
                 tinput.interrupt();
-                System.out.println("queryKO");
+                System.out.println("queryKO3");
                 /*if (!sorted) {
                     tRelViews.interrupt();
                 }*/

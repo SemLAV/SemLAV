@@ -150,7 +150,8 @@ public class IncludingStreamV3Pool extends Thread {
                         Predicate view = rvs.get(j);
                         addRunNow(i, j);
                         Runnable worker = new IncludingStreamV3Worker(this, i, j, view);
-                        executor.execute(worker);
+                        if(!this.isInterrupted())
+                            executor.execute(worker);
                     }
 
                 }

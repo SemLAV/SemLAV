@@ -312,8 +312,11 @@ public class evaluateQueryThreaded {
                 }*/
             }
             if (!tquery.isAlive()) {
+                System.out.println("queryKO");
                 ((IncludingStreamV3Pool) tinput).myInterrupt();
+                System.out.println("queryKO");
                 tinput.interrupt();
+                System.out.println("queryKO");
                 /*if (!sorted) {
                     tRelViews.interrupt();
                 }*/

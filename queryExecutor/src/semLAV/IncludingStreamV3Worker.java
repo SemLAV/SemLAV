@@ -40,11 +40,14 @@ public class IncludingStreamV3Worker implements Runnable {
             System.out.println(Thread.currentThread().getName()+" :temporal model size: "+tmp.size());
             StmtIterator it = tmp.listStatements();
             while(it.hasNext()) {
-                Statement stmt = it.nextStatement();
                 try {
                     pool.graphUnion.enterCriticalSection(LockSRMW.WRITE);
                     start = System.currentTimeMillis();
-                    pool.graphUnion.add(stmt);
+                    int i = 0;
+                    while(it.hasNext() && i < pool.nbTripleByLock++) {
+                        Statement stmt = it.nextStatement();
+                        pool.graphUnion.add(stmt);
+                    }
                     pool.graphCreationTimer.addTime(System.currentTimeMillis() - start);
                 } finally {
                     pool.graphUnion.leaveCriticalSection();

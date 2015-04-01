@@ -14,3 +14,4 @@ sorted=true
 testing=true
 visualization=false
 nbWorker=15
+nbTripleByLock=5

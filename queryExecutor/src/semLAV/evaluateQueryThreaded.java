@@ -35,6 +35,7 @@ import com.hp.hpl.jena.shared.PrefixMapping;
 public class evaluateQueryThreaded {
 
     private static int nbWorker;
+    private static int nbTripleByLock;
 	
     public static void main(String[] args) throws Exception {
 		
@@ -46,6 +47,7 @@ public class evaluateQueryThreaded {
         String sparqlDir = config.getProperty("mappingssparql");
         int timeout = Integer.parseInt(config.getProperty("timeout"));
         nbWorker = Integer.parseInt(config.getProperty("nbWorker"));
+        nbTripleByLock = Integer.parseInt(config.getProperty("nbTripleByLock"));
 
         ConjunctiveQuery q = new ConjunctiveQuery(sparqlQuery);
         ArrayList<ConjunctiveQuery> ms = new ArrayList<ConjunctiveQuery>();
@@ -296,7 +298,7 @@ public class evaluateQueryThreaded {
         } else {
             buckets = viewSelection3(cq, ms, constants);
         }
-        tinput = new IncludingStreamV3Pool(buckets, graphUnion, includedViews, catalog, constants, wrapperTimer, graphCreationTimer, executionTimer, numberTimer, info2, ids, includedViewsSet, testing, nbWorker);
+        tinput = new IncludingStreamV3Pool(buckets, graphUnion, includedViews, catalog, constants, wrapperTimer, graphCreationTimer, executionTimer, numberTimer, info2, ids, includedViewsSet, testing, nbWorker, nbTripleByLock);
         tinput.start();
 
 

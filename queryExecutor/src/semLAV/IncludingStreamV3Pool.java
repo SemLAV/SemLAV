@@ -35,13 +35,15 @@ public class IncludingStreamV3Pool extends Thread {
     boolean finish = false;
     boolean isReseting = false;
     int nbWorker;
+    int nbTripleByLock;
 
     public IncludingStreamV3Pool(HashMap<Triple, ArrayList<Predicate>> buckets, Model gu, Counter iv, Catalog c,
                                  HashMap<String, String> cs, Timer wrapperTimer,
                                  Timer graphCreationTimer, Timer executionTimer,
                                  Timer totalTimer, BufferedWriter info2, Counter ids, HashSet<Predicate> includedViewsSet,
-                                 boolean testing, int nbWoker) {
+                                 boolean testing, int nbWoker, int nbTripleByLock) {
         this.nbWorker = nbWoker;
+        this.nbTripleByLock = nbTripleByLock;
         this.buckets = buckets;
         this.graphUnion = gu;
         this.includedViews = iv;

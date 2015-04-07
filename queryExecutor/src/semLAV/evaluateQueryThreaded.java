@@ -36,6 +36,8 @@ public class evaluateQueryThreaded {
 
     private static int nbWorker;
     private static int nbTripleByLock;
+    private static String queryStrategy;
+    private static int querySleepTime;
 	
     public static void main(String[] args) throws Exception {
 		
@@ -48,6 +50,8 @@ public class evaluateQueryThreaded {
         int timeout = Integer.parseInt(config.getProperty("timeout"));
         nbWorker = Integer.parseInt(config.getProperty("nbWorker"));
         nbTripleByLock = Integer.parseInt(config.getProperty("nbTripleByLock"));
+        queryStrategy = config.getProperty("queryStrategy");
+        querySleepTime = Integer.parseInt(config.getProperty("querySleepTime"));
 
         ConjunctiveQuery q = new ConjunctiveQuery(sparqlQuery);
         ArrayList<ConjunctiveQuery> ms = new ArrayList<ConjunctiveQuery>();
@@ -79,7 +83,7 @@ public class evaluateQueryThreaded {
                                = loadConstants(config.getProperty("constants"), q.getPrefixMapping());
         Catalog catalog = executionMCDSATThreaded.loadCatalog(config, path, n3Dir, sparqlDir, contactSources);
         execute(sparqlQuery, path, queryResultsPath, n3Dir, 
-                groundTruthPath, q, ms, constants, catalog, timeout, sorted, testing, output, visualization);
+                groundTruthPath, q, ms, constants, catalog, timeout, sorted, testing, output, visualization, queryStrategy, querySleepTime);
     }
 
     public static HashMap<String, String> loadConstants(String file, PrefixMapping p) throws Exception {
@@ -253,7 +257,7 @@ public class evaluateQueryThreaded {
                                 String GT_PATH, ConjunctiveQuery cq, 
                                 ArrayList<ConjunctiveQuery> ms, HashMap<String, String> 
                                 constants, Catalog catalog, int timeout, boolean sorted, boolean testing,
-                                String output, boolean visualization) throws Exception {
+                                String output, boolean visualization, String queryStrategy, int querySleepTime) throws Exception {
     
         Model graphUnion = ModelFactory.createDefaultModel(new LockSRMW());
         String dir = PATH + QUERY_RESULTS_PATH +"NOTHING";
@@ -303,7 +307,7 @@ public class evaluateQueryThreaded {
 
 
         Thread tquery = new QueryingStream(graphUnion, null, q, 
-                            executionTimer, numberTimer, includedViews, info, info3, dir, wrapperTimer, graphCreationTimer, ids, includedViewsSet, timeout, testing, output, visualization);
+                            executionTimer, numberTimer, includedViews, info, info3, dir, wrapperTimer, graphCreationTimer, ids, includedViewsSet, timeout, testing, output, visualization, queryStrategy, querySleepTime);
         tquery.start();
 
         while (tinput.isAlive() || tquery.isAlive()) {

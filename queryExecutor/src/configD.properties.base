@@ -15,3 +15,6 @@ testing=true
 visualization=false
 nbWorker=15
 nbTripleByLock=5
+queryStrategy=time
+#queryStrategy=views
+querySleepTime=10

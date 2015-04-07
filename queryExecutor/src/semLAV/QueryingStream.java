@@ -51,9 +51,12 @@ public class QueryingStream extends Thread {
     private boolean testing;
     private String output;
     private boolean visualization;
+    private String queryStrategy;
+    private int querySleepTime;
+    private Timer queryTime = new Timer();
 
     public QueryingStream (Model gu, Reasoner r, Query q, Timer et, Timer t, 
-                           Counter c, BufferedWriter i, BufferedWriter i2, String dir, Timer wrapperTimer, Timer graphCreationTimer, Counter ids, HashSet<Predicate> includedViewsSet, int timeout, boolean testing, String output, boolean v) {
+                           Counter c, BufferedWriter i, BufferedWriter i2, String dir, Timer wrapperTimer, Timer graphCreationTimer, Counter ids, HashSet<Predicate> includedViewsSet, int timeout, boolean testing, String output, boolean v, String queryStrategy, int querySleepTime) {
         this.graphUnion = gu;
         this.reasoner = r;
         this.query = q;
@@ -71,6 +74,8 @@ public class QueryingStream extends Thread {
         this.testing = testing;
         this.output = output;
         this.visualization = v;
+        this.queryStrategy = queryStrategy;
+        this.querySleepTime = querySleepTime;
     }
 
     private void evaluateQuery() {
@@ -79,8 +84,9 @@ public class QueryingStream extends Thread {
         if (reasoner != null) {
             m = ModelFactory.createInfModel (reasoner, m);
         }
-        if (this.counter.getValue() != this.lastValue) {
+        if ( (this.counter.getValue() != this.lastValue) || (queryStrategy.equals("time") && queryTime.getStartTime()+querySleepTime >= System.currentTimeMillis()) ) {
             m.enterCriticalSection(LockSRMW.READ);
+            queryTime.start();
             tempValue = this.counter.getValue();
             id = this.ids.getValue();
             this.ids.increase();
@@ -108,6 +114,7 @@ public class QueryingStream extends Thread {
             executionTimer.stop();
             m.leaveCriticalSection();
             timer.stop();
+                queryTime.stop();
 
             if (testing) {
                 String includedViewsStr = "";

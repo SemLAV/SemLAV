@@ -85,6 +85,9 @@ public class QueryingStream extends Thread {
             m = ModelFactory.createInfModel (reasoner, m);
         }
         if ( (this.counter.getValue() != this.lastValue) || (queryStrategy.equals("time") && queryTime.getStartTime()+querySleepTime >= System.currentTimeMillis()) ) {
+            if(queryStrategy.equals("time") && queryTime.getStartTime()+querySleepTime >= System.currentTimeMillis()) {
+                System.out.println("Query start with the sleep time");
+            }
             m.enterCriticalSection(LockSRMW.READ);
             queryTime.start();
             tempValue = this.counter.getValue();

@@ -84,13 +84,13 @@ public class QueryingStream extends Thread {
         if (reasoner != null) {
             m = ModelFactory.createInfModel (reasoner, m);
         }
-        if ( (this.counter.getValue() != this.lastValue) || (queryStrategy.equals("time") && queryTime.getStartTime()+querySleepTime <= System.currentTimeMillis()) ) {
-            System.out.println(queryStrategy.equals("time"));
-            if(queryStrategy.equals("time") && queryTime.getStartTime()+querySleepTime >= System.currentTimeMillis()) {
-                System.out.println("Query start with the sleep time");
-            }
+        boolean isLoadByTime = (queryStrategy.equals("time") && queryTime.getStartTime()+querySleepTime <= System.currentTimeMillis());
+        if ( (this.counter.getValue() != this.lastValue) || isLoadByTime) {
+            if(isLoadByTime)
+                System.out.println("run with timeout");
+            if(isLoadByTime)
+                queryTime.start();
             m.enterCriticalSection(LockSRMW.READ);
-            queryTime.start();
             tempValue = this.counter.getValue();
             id = this.ids.getValue();
             this.ids.increase();
@@ -118,6 +118,7 @@ public class QueryingStream extends Thread {
             executionTimer.stop();
             m.leaveCriticalSection();
             timer.stop();
+            if(isLoadByTime)
                 queryTime.stop();
 
             if (testing) {

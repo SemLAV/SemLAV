@@ -80,13 +80,13 @@ public class QueryingStream extends Thread {
 
     private void evaluateQuery() {
 
-        Model m = graphUnion;
-        if (reasoner != null) {
-            m = ModelFactory.createInfModel (reasoner, m);
-        }
         System.out.println("...");
         boolean isLoadByTime = (queryStrategy.equals("time") && (System.currentTimeMillis() >= queryTimeStart+querySleepTime));
         if ( (this.counter.getValue() != this.lastValue) || isLoadByTime) {
+            Model m = graphUnion;
+            if (reasoner != null) {
+                m = ModelFactory.createInfModel (reasoner, m);
+            }
             if(isLoadByTime)
                 System.out.println("run with timeout");
             if(isLoadByTime)

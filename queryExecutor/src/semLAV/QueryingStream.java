@@ -53,7 +53,7 @@ public class QueryingStream extends Thread {
     private boolean visualization;
     private String queryStrategy;
     private int querySleepTime;
-    private long queryTimeStart = 0;
+    private long queryTimeEnd = 0;
 
     public QueryingStream (Model gu, Reasoner r, Query q, Timer et, Timer t, 
                            Counter c, BufferedWriter i, BufferedWriter i2, String dir, Timer wrapperTimer, Timer graphCreationTimer, Counter ids, HashSet<Predicate> includedViewsSet, int timeout, boolean testing, String output, boolean v, String queryStrategy, int querySleepTime) {
@@ -81,8 +81,8 @@ public class QueryingStream extends Thread {
     private void evaluateQuery() {
 
 
-        boolean isLoadByTime = (queryStrategy.equals("time") && (System.currentTimeMillis() >= queryTimeStart+querySleepTime));
-        System.out.println("."+isLoadByTime);
+        boolean isLoadByTime = (queryStrategy.equals("time") && (System.currentTimeMillis() >= queryTimeEnd));
+        System.out.println("."+queryTimeEnd+" "+System.currentTimeMillis()+" "+(System.currentTimeMillis() >= queryTimeEnd));
         if ( (this.counter.getValue() != this.lastValue) || isLoadByTime) {
             Model m = graphUnion;
             if (reasoner != null) {
@@ -91,7 +91,7 @@ public class QueryingStream extends Thread {
             if(isLoadByTime)
                 System.out.println("run with timeout");
             if(isLoadByTime)
-                queryTimeStart = System.currentTimeMillis();
+                queryTimeEnd = System.currentTimeMillis()+querySleepTime;
             m.enterCriticalSection(LockSRMW.READ);
             tempValue = this.counter.getValue();
             id = this.ids.getValue();

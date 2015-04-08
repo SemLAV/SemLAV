@@ -84,6 +84,7 @@ public class QueryingStream extends Thread {
         if (reasoner != null) {
             m = ModelFactory.createInfModel (reasoner, m);
         }
+        System.out.println("...");
         boolean isLoadByTime = (queryStrategy.equals("time") && (System.currentTimeMillis() >= queryTimeStart+querySleepTime));
         if ( (this.counter.getValue() != this.lastValue) || isLoadByTime) {
             if(isLoadByTime)
@@ -324,7 +325,7 @@ public class QueryingStream extends Thread {
             });
         try {
             while (!((timeout > 0 && TimeUnit.MILLISECONDS.toMillis(timer.getTotalTime()) >= timeout) || this.isInterrupted())) {
-                Thread.sleep(10);
+                Thread.sleep(time);
                 if (testing) {
                     evaluateQuery();
                 }

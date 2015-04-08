@@ -325,7 +325,7 @@ public class QueryingStream extends Thread {
             });
         try {
             while (!((timeout > 0 && TimeUnit.MILLISECONDS.toMillis(timer.getTotalTime()) >= timeout) || this.isInterrupted())) {
-                Thread.sleep(time);
+                Thread.sleep(10);
                 if (testing) {
                     evaluateQuery();
                 }

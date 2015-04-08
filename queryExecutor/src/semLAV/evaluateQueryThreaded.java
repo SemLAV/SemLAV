@@ -306,8 +306,10 @@ public class evaluateQueryThreaded {
         tinput.start();
 
 
+
         Thread tquery = new QueryingStream(graphUnion, null, q, 
                             executionTimer, numberTimer, includedViews, info, info3, dir, wrapperTimer, graphCreationTimer, ids, includedViewsSet, timeout, testing, output, visualization, queryStrategy, querySleepTime);
+        tquery.setPriority(Thread.MAX_PRIORITY);
         tquery.start();
 
         while (tinput.isAlive() || tquery.isAlive()) {

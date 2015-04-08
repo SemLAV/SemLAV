@@ -2,7 +2,7 @@
 
 SemLAVPATH=`pwd | rev | cut -d"/" -f 3- | rev`
 SETUPS="510views"
-QUERIES=`seq 9 9` 
+QUERIES=`seq 1 18` 
 DATASET=TenMillions
 MEMSIZE=20480m
 MEMSIZE2=40960m

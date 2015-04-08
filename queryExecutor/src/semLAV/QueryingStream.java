@@ -81,10 +81,10 @@ public class QueryingStream extends Thread {
     private void evaluateQuery() {
 
 
-        boolean isLoadByTime = (queryStrategy.equals("time") && (System.currentTimeMillis() >= queryTimeEnd));
+        boolean isLoadByTime = (System.currentTimeMillis() >= queryTimeEnd);
         if(isLoadByTime)
             System.out.println(".");
-        if ( System.currentTimeMillis() >= queryTimeEnd) {
+        if ( (this.counter.getValue() != this.lastValue) || isLoadByTime) {
             Model m = graphUnion;
             if (reasoner != null) {
                 m = ModelFactory.createInfModel (reasoner, m);

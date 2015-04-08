@@ -53,7 +53,7 @@ public class QueryingStream extends Thread {
     private boolean visualization;
     private String queryStrategy;
     private int querySleepTime;
-    private Timer queryTime = new Timer();
+    private long queryTimeStart = 0;
 
     public QueryingStream (Model gu, Reasoner r, Query q, Timer et, Timer t, 
                            Counter c, BufferedWriter i, BufferedWriter i2, String dir, Timer wrapperTimer, Timer graphCreationTimer, Counter ids, HashSet<Predicate> includedViewsSet, int timeout, boolean testing, String output, boolean v, String queryStrategy, int querySleepTime) {
@@ -84,12 +84,12 @@ public class QueryingStream extends Thread {
         if (reasoner != null) {
             m = ModelFactory.createInfModel (reasoner, m);
         }
-        boolean isLoadByTime = (queryStrategy.equals("time") && queryTime.getStartTime()+querySleepTime <= System.currentTimeMillis());
+        boolean isLoadByTime = (queryStrategy.equals("time") && (System.currentTimeMillis() >= queryTimeStart+querySleepTime));
         if ( (this.counter.getValue() != this.lastValue) || isLoadByTime) {
             if(isLoadByTime)
                 System.out.println("run with timeout");
             if(isLoadByTime)
-                queryTime.start();
+                queryTimeStart = System.currentTimeMillis();
             m.enterCriticalSection(LockSRMW.READ);
             tempValue = this.counter.getValue();
             id = this.ids.getValue();
@@ -118,8 +118,6 @@ public class QueryingStream extends Thread {
             executionTimer.stop();
             m.leaveCriticalSection();
             timer.stop();
-            if(isLoadByTime)
-                queryTime.stop();
 
             if (testing) {
                 String includedViewsStr = "";
@@ -326,7 +324,7 @@ public class QueryingStream extends Thread {
             });
         try {
             while (!((timeout > 0 && TimeUnit.MILLISECONDS.toMillis(timer.getTotalTime()) >= timeout) || this.isInterrupted())) {
-                Thread.sleep(time);
+                Thread.sleep(10);
                 if (testing) {
                     evaluateQuery();
                 }

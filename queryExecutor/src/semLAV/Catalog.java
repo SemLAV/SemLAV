@@ -94,7 +94,7 @@ public class Catalog {
             res = FileManager.get().loadModel(this.execDir+str+".n3");
         } catch (com.hp.hpl.jena.shared.NotFoundException e) {
             System.out.println("file "+this.execDir+str+".n3 does not exist");
-            if(evaluateQueryThreaded.lockType.equals("SRMW"))
+            if(evaluateQueryThreaded.lockType().equals("SRMW"))
                 res = ModelFactory.createDefaultModel(new LockSRMW());
             else
                 res = ModelFactory.createDefaultModel(new LockMRSW());

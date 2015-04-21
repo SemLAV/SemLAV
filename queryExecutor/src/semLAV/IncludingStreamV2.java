@@ -113,7 +113,7 @@ public class IncludingStreamV2 extends Thread {
                         }
                         finish = false;
                         if (evaluateQueryThreaded.include(includedViewsSet, view, constants)) {
-                            if(evaluateQueryThreaded.lockType.equals("SRMW"))
+                            if(evaluateQueryThreaded.lockType().equals("SRMW"))
                                 graphUnion.enterCriticalSection(LockSRMW.WRITE);
                             else
                                 graphUnion.enterCriticalSection(LockMRSW.WRITE);

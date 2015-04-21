@@ -102,7 +102,7 @@ public class QueryingStream extends Thread {
                 System.out.println("query run with nb of triples");
                 statements = graphSize+statementsSleepTime;
             }*/
-            if(evaluateQueryThreaded.lockType.equals("SRMW"))
+            if(evaluateQueryThreaded.lockType().equals("SRMW"))
                 m.enterCriticalSection(LockSRMW.READ);
             else
                 m.enterCriticalSection(LockMRSW.READ);

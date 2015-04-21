@@ -38,9 +38,14 @@ public class evaluateQueryThreaded {
     private static int nbWorker;
     private static int nbTripleByLock;
     private static String queryStrategy;
-    public static String lockType;
+    private static String lockType;
     private static int querySleepTime;
     private static long statementsSleepTime;
+
+    public static synchronized String lockType() {
+        return lockType;
+
+    }
 	
     public static void main(String[] args) throws Exception {
 		
@@ -265,7 +270,7 @@ public class evaluateQueryThreaded {
                                 constants, Catalog catalog, int timeout, boolean sorted, boolean testing,
                                 String output, boolean visualization, String queryStrategy, int querySleepTime) throws Exception {
         Model graphUnion = null;
-        if(lockType.equals("SRMW"))
+        if(lockType().equals("SRMW"))
              ModelFactory.createDefaultModel(new LockSRMW());
         else
             ModelFactory.createDefaultModel(new LockMRSW());

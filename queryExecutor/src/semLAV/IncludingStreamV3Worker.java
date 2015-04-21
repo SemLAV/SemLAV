@@ -42,7 +42,7 @@ public class IncludingStreamV3Worker implements Runnable {
             StmtIterator it = tmp.listStatements();
             while(it.hasNext()) {
                 try {
-                    if(evaluateQueryThreaded.lockType.equals("SRMW"))
+                    if(evaluateQueryThreaded.lockType().equals("SRMW"))
                         pool.graphUnion.enterCriticalSection(LockSRMW.WRITE);
                     else
                         pool.graphUnion.enterCriticalSection(LockMRSW.WRITE);

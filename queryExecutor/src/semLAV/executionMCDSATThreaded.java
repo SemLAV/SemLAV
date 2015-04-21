@@ -238,7 +238,7 @@ public class executionMCDSATThreaded {
         info.flush();
         HashSet<String> loadedViews = new HashSet<String>();
         Model graphUnion = null;
-        if(evaluateQueryThreaded.lockType.equals("SRMW"))
+        if(evaluateQueryThreaded.lockType().equals("SRMW"))
             graphUnion = ModelFactory.createDefaultModel(new LockSRMW());
         else
             graphUnion = ModelFactory.createDefaultModel(new LockMRSW());

@@ -51,7 +51,7 @@ public class IncludingStreamRW extends Thread {
                 this.counter.increase();
                 for(Predicate pred : rew.getGoals()){
                     if(loadedViews.add(pred.getName())){
-                        if(evaluateQueryThreaded.lockType.equals("SRMW"))
+                        if(evaluateQueryThreaded.lockType().equals("SRMW"))
                             graphUnion.enterCriticalSection(LockSRMW.WRITE);
                         else
                             graphUnion.enterCriticalSection(LockMRSW.WRITE);

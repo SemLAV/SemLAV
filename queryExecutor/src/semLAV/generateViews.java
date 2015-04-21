@@ -173,7 +173,7 @@ class generateViews {
             Model result[] = new Model[f];
 
             for (i = 0; i < f; i++) {
-                if(evaluateQueryThreaded.lockType.equals("SRMW"))
+                if(evaluateQueryThreaded.lockType().equals("SRMW"))
                     result[i] = ModelFactory.createDefaultModel(new LockSRMW());
                 else
                     result[i] = ModelFactory.createDefaultModel(new LockMRSW());

@@ -50,7 +50,7 @@ class generateAnswers {
             executionMCDSATThreaded.makeNewDir(answersFolder);
             Model m = null;
 
-            if(true)
+            if(evaluateQueryThreaded.lockType().equals("SRMW"))
                 ModelFactory.createDefaultModel(new LockSRMW());
             else
                 ModelFactory.createDefaultModel(new LockMRSW());

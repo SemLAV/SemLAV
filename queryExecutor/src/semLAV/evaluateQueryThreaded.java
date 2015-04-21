@@ -270,7 +270,7 @@ public class evaluateQueryThreaded {
                                 constants, Catalog catalog, int timeout, boolean sorted, boolean testing,
                                 String output, boolean visualization, String queryStrategy, int querySleepTime) throws Exception {
         Model graphUnion = null;
-        if(true)
+        if(lockType().equals("SRMW"))
             graphUnion = ModelFactory.createDefaultModel(new LockSRMW());
         else
             graphUnion = ModelFactory.createDefaultModel(new LockMRSW());

@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.io.File;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.shared.LockMRSW;
 import com.hp.hpl.jena.shared.LockSRMW;
 
 public class QueryingStream extends Thread {
@@ -92,7 +93,10 @@ public class QueryingStream extends Thread {
             }
             if(isLoadByTime)
                 System.out.println("run with timeout");
-            m.enterCriticalSection(LockSRMW.READ);
+            if(evaluateQueryThreaded.lockType.equals("SRMW"))
+                m.enterCriticalSection(LockSRMW.READ);
+            else
+                m.enterCriticalSection(LockMRSW.READ);
             tempValue = this.counter.getValue();
             id = this.ids.getValue();
             this.ids.increase();
@@ -291,7 +295,10 @@ public class QueryingStream extends Thread {
 
         try {
             OutputStream out = new FileOutputStream("/tmp/"+tmpFile);
-            m.enterCriticalSection(LockSRMW.READ);
+            if(evaluateQueryThreaded.lockType.equals("SRMW"))
+                m.enterCriticalSection(LockSRMW.READ);
+            else
+                m.enterCriticalSection(LockMRSW.READ);
             m.write(out, "N-TRIPLE");
             m.leaveCriticalSection();
             File f = new File("/tmp/"+tmpFile);

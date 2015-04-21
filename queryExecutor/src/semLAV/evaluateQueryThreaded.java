@@ -29,6 +29,7 @@ import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.shared.LockMRSW;
 import com.hp.hpl.jena.shared.LockSRMW;
 import com.hp.hpl.jena.shared.PrefixMapping;
 
@@ -37,6 +38,7 @@ public class evaluateQueryThreaded {
     private static int nbWorker;
     private static int nbTripleByLock;
     private static String queryStrategy;
+    public static String lockType;
     private static int querySleepTime;
 	
     public static void main(String[] args) throws Exception {
@@ -50,6 +52,7 @@ public class evaluateQueryThreaded {
         int timeout = Integer.parseInt(config.getProperty("timeout"));
         nbWorker = Integer.parseInt(config.getProperty("nbWorker"));
         nbTripleByLock = Integer.parseInt(config.getProperty("nbTripleByLock"));
+        lockType = config.getProperty("lockType");
         queryStrategy = config.getProperty("queryStrategy");
         querySleepTime = Integer.parseInt(config.getProperty("querySleepTime"));
 
@@ -258,8 +261,11 @@ public class evaluateQueryThreaded {
                                 ArrayList<ConjunctiveQuery> ms, HashMap<String, String> 
                                 constants, Catalog catalog, int timeout, boolean sorted, boolean testing,
                                 String output, boolean visualization, String queryStrategy, int querySleepTime) throws Exception {
-    
-        Model graphUnion = ModelFactory.createDefaultModel(new LockSRMW());
+        Model graphUnion = null;
+        if(lockType.equals("SRMW"))
+             ModelFactory.createDefaultModel(new LockSRMW());
+        else
+            ModelFactory.createDefaultModel(new LockMRSW());
         String dir = PATH + QUERY_RESULTS_PATH +"NOTHING";
         if (testing) {
             executionMCDSATThreaded.makeNewDir(dir);

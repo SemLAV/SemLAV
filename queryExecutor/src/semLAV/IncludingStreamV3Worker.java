@@ -5,6 +5,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.shared.Lock;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.shared.LockMRSW;
 import com.hp.hpl.jena.shared.LockSRMW;
 
 import java.util.ArrayList;
@@ -41,7 +42,10 @@ public class IncludingStreamV3Worker implements Runnable {
             StmtIterator it = tmp.listStatements();
             while(it.hasNext()) {
                 try {
-                    pool.graphUnion.enterCriticalSection(LockSRMW.WRITE);
+                    if(evaluateQueryThreaded.lockType.equals("SRMW"))
+                        pool.graphUnion.enterCriticalSection(LockSRMW.WRITE);
+                    else
+                        pool.graphUnion.enterCriticalSection(LockMRSW.WRITE);
                     start = System.currentTimeMillis();
                     int i = 0;
                     while(it.hasNext() && i < pool.nbTripleByLock++) {

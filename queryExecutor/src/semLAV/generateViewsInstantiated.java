@@ -3,6 +3,7 @@ package semLAV;
 import java.util.*;
 import java.io.*;
 
+import com.hp.hpl.jena.shared.LockMRSW;
 import com.hp.hpl.jena.shared.LockSRMW;
 import com.hp.hpl.jena.util.*;
 import com.hp.hpl.jena.query.*;
@@ -66,7 +67,11 @@ public class generateViewsInstantiated {
         //System.out.println(q.toString());
         QueryExecution queryExec = QueryExecutionFactory.create(q.toString(),
                                                                     res);
-        Model result = ModelFactory.createDefaultModel(new LockSRMW());
+        Model result = null;
+        if(evaluateQueryThreaded.lockType.equals("SRMW"))
+            result = ModelFactory.createDefaultModel(new LockSRMW());
+        else
+            result = ModelFactory.createDefaultModel(new LockMRSW());
         Query construct = getConstruct(q);
 
         QueryExecution qem = QueryExecutionFactory.create(construct.toString(), res);

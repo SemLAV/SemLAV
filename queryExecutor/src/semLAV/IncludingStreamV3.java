@@ -3,6 +3,7 @@ package semLAV;
 import java.util.*;
 import java.io.*;
 
+import com.hp.hpl.jena.shared.LockMRSW;
 import com.hp.hpl.jena.shared.LockSRMW;
 import com.hp.hpl.jena.util.FileManager;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -114,7 +115,10 @@ public class IncludingStreamV3 extends Thread {
                         this.current[i] = this.current[i] + 1;
                         finish = false;
                         if (evaluateQueryThreaded.include(includedViewsSet, view, constants)) {
-                            graphUnion.enterCriticalSection(LockSRMW.WRITE);
+                            if(evaluateQueryThreaded.lockType.equals("SRMW"))
+                                graphUnion.enterCriticalSection(LockSRMW.WRITE);
+                            else
+                                graphUnion.enterCriticalSection(LockMRSW.WRITE);
                             try {
                                 System.out.println("including view: "+view);
                                 wrapperTimer.resume();

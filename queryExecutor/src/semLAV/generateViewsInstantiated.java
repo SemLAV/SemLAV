@@ -68,7 +68,7 @@ public class generateViewsInstantiated {
         QueryExecution queryExec = QueryExecutionFactory.create(q.toString(),
                                                                     res);
         Model result = null;
-        if(evaluateQueryThreaded.lockType().equals("SRMW"))
+        if(true)
             result = ModelFactory.createDefaultModel(new LockSRMW());
         else
             result = ModelFactory.createDefaultModel(new LockMRSW());

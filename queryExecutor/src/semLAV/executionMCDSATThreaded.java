@@ -238,7 +238,8 @@ public class executionMCDSATThreaded {
         info.flush();
         HashSet<String> loadedViews = new HashSet<String>();
         Model graphUnion = null;
-        if(evaluateQueryThreaded.lockType().equals("SRMW"))
+
+        if(true)
             graphUnion = ModelFactory.createDefaultModel(new LockSRMW());
         else
             graphUnion = ModelFactory.createDefaultModel(new LockMRSW());
@@ -264,8 +265,8 @@ public class executionMCDSATThreaded {
         // 3 last params is false
         Thread tquery = new QueryingStream(graphUnion, reasoner, query, 
                             executionTimer, numberTimer, 
-                            executedRewritings, info, null, dir, wrapperTimer, 
-                            graphCreationTimer, ids, includedViewsSet, t, true, "", false,"",0,0);
+                            executedRewritings, info, null, dir, wrapperTimer,
+                            graphCreationTimer, ids, includedViewsSet, t, true, "", false, "",0);
         tquery.start();
         int exitValue = p.waitFor();
         tinput.join();

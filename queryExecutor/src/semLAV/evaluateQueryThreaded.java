@@ -270,10 +270,10 @@ public class evaluateQueryThreaded {
                                 constants, Catalog catalog, int timeout, boolean sorted, boolean testing,
                                 String output, boolean visualization, String queryStrategy, int querySleepTime) throws Exception {
         Model graphUnion = null;
-        if(lockType().equals("SRMW"))
-             ModelFactory.createDefaultModel(new LockSRMW());
+        if(true)
+            graphUnion = ModelFactory.createDefaultModel(new LockSRMW());
         else
-            ModelFactory.createDefaultModel(new LockMRSW());
+            graphUnion = ModelFactory.createDefaultModel(new LockMRSW());
         String dir = PATH + QUERY_RESULTS_PATH +"NOTHING";
         if (testing) {
             executionMCDSATThreaded.makeNewDir(dir);

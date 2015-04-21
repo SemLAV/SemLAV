@@ -17,6 +17,7 @@ import java.io.BufferedWriter;
 import java.util.ArrayList;
 import java.io.File;
 
+import com.hp.hpl.jena.shared.LockMRSW;
 import com.hp.hpl.jena.shared.LockSRMW;
 import com.hp.hpl.jena.util.FileManager;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -47,7 +48,11 @@ class generateAnswers {
 
         if (answersFolder != null) {
             executionMCDSATThreaded.makeNewDir(answersFolder);
-            Model m = ModelFactory.createDefaultModel(new LockSRMW());
+            Model m = null;
+            if(true)
+                ModelFactory.createDefaultModel(new LockSRMW());
+            else
+                ModelFactory.createDefaultModel(new LockMRSW());
             File f = new File(n3ViewsFolder);
             File[] content = f.listFiles();
             if (content != null) {

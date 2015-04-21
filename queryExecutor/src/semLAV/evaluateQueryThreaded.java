@@ -29,6 +29,7 @@ import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.shared.LockMRSW;
 import com.hp.hpl.jena.shared.LockSRMW;
 import com.hp.hpl.jena.shared.PrefixMapping;
 
@@ -259,7 +260,11 @@ public class evaluateQueryThreaded {
                                 constants, Catalog catalog, int timeout, boolean sorted, boolean testing,
                                 String output, boolean visualization, String queryStrategy, int querySleepTime) throws Exception {
     
-        Model graphUnion = ModelFactory.createDefaultModel(new LockSRMW());
+        Model graphUnion = null;
+        if(true)
+            graphUnion = ModelFactory.createDefaultModel(new LockSRMW());
+        else
+            graphUnion = ModelFactory.createDefaultModel(new LockMRSW());
         String dir = PATH + QUERY_RESULTS_PATH +"NOTHING";
         if (testing) {
             executionMCDSATThreaded.makeNewDir(dir);

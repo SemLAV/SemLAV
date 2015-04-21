@@ -14,6 +14,7 @@ import java.io.BufferedWriter;
 import java.util.ArrayList;
 import java.io.File;
 
+import com.hp.hpl.jena.shared.LockMRSW;
 import com.hp.hpl.jena.shared.LockSRMW;
 import com.hp.hpl.jena.util.FileManager;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -172,7 +173,10 @@ class generateViews {
             Model result[] = new Model[f];
 
             for (i = 0; i < f; i++) {
-                result[i] = ModelFactory.createDefaultModel(new LockSRMW());
+                if(true)
+                    result[i] = ModelFactory.createDefaultModel(new LockSRMW());
+                else
+                    result[i] = ModelFactory.createDefaultModel(new LockMRSW());
             }
             //System.out.println("the empty models are ready");
             ResultSet rs = queryExec.execSelect();

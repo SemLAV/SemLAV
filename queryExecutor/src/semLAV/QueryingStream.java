@@ -304,7 +304,7 @@ public class QueryingStream extends Thread {
 
         try {
             OutputStream out = new FileOutputStream("/tmp/"+tmpFile);
-            if(evaluateQueryThreaded.lockType.equals("SRMW"))
+            if(evaluateQueryThreaded.lockType().equals("SRMW"))
                 m.enterCriticalSection(LockSRMW.READ);
             else
                 m.enterCriticalSection(LockMRSW.READ);

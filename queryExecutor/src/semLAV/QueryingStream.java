@@ -84,10 +84,10 @@ public class QueryingStream extends Thread {
 
     private void evaluateQuery() {
 
-        long graphSize = graphUnion.size();
+        //long graphSize = graphUnion.size();
         boolean isLoadByTime = (queryStrategy.equals("time") && (System.currentTimeMillis() >= queryTimeEnd+querySleepTime));
-        boolean isLoadBynbTriples = (queryStrategy.equals("nbTriples") && graphSize >= statements+statementsSleepTime);
-        if ( (this.counter.getValue() != this.lastValue) || isLoadByTime || isLoadBynbTriples) {
+        //boolean isLoadBynbTriples = (queryStrategy.equals("nbTriples") && graphSize >= statements+statementsSleepTime);
+        if ( (this.counter.getValue() != this.lastValue) || isLoadByTime) {
             long start = System.currentTimeMillis();
 
             Model m = graphUnion;
@@ -98,10 +98,10 @@ public class QueryingStream extends Thread {
                 System.out.println("query run with time");
                 queryTimeEnd = start+querySleepTime;
             }
-            if(isLoadBynbTriples) {
+            /*if(isLoadBynbTriples) {
                 System.out.println("query run with nb of triples");
                 statements = graphSize+statementsSleepTime;
-            }
+            }*/
             if(evaluateQueryThreaded.lockType.equals("SRMW"))
                 m.enterCriticalSection(LockSRMW.READ);
             else

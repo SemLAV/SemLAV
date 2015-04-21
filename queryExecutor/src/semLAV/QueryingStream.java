@@ -94,6 +94,7 @@ public class QueryingStream extends Thread {
             if (reasoner != null) {
                 m = ModelFactory.createInfModel (reasoner, m);
             }
+
             if(isLoadByTime) {
                 System.out.println("query run with time");
                 queryTimeEnd = start+querySleepTime;
@@ -102,6 +103,9 @@ public class QueryingStream extends Thread {
                 System.out.println("query run with nb of triples");
                 statements = graphSize+statementsSleepTime;
             }*/
+
+            if(isLoadByTime)
+                System.out.println("run with timeout");
             if(evaluateQueryThreaded.lockType().equals("SRMW"))
                 m.enterCriticalSection(LockSRMW.READ);
             else
@@ -301,7 +305,6 @@ public class QueryingStream extends Thread {
     }
 
     public static long getModelSize(String tmpFile, Model m) {
-
         try {
             OutputStream out = new FileOutputStream("/tmp/"+tmpFile);
             if(evaluateQueryThreaded.lockType().equals("SRMW"))

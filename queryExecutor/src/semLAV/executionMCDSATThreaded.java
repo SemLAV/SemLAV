@@ -261,11 +261,11 @@ public class executionMCDSATThreaded {
         HashSet<Predicate> includedViewsSet = new HashSet<Predicate>();
         tinput.start();
         terror.start();
+        // 3 last params is false
         Thread tquery = new QueryingStream(graphUnion, reasoner, query, 
                             executionTimer, numberTimer, 
                             executedRewritings, info, null, dir, wrapperTimer, 
-                            graphCreationTimer, ids, includedViewsSet, t, true, "", false);
-        tquery.setPriority(Thread.MAX_PRIORITY);
+                            graphCreationTimer, ids, includedViewsSet, t, true, "", false,"",0,0);
         tquery.start();
         int exitValue = p.waitFor();
         tinput.join();

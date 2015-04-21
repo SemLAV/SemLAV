@@ -55,9 +55,11 @@ public class QueryingStream extends Thread {
     private String queryStrategy;
     private int querySleepTime;
     private long queryTimeEnd = 0;
+    private long statementsSleepTime;
+    private long statements = 0;
 
     public QueryingStream (Model gu, Reasoner r, Query q, Timer et, Timer t, 
-                           Counter c, BufferedWriter i, BufferedWriter i2, String dir, Timer wrapperTimer, Timer graphCreationTimer, Counter ids, HashSet<Predicate> includedViewsSet, int timeout, boolean testing, String output, boolean v, String queryStrategy, int querySleepTime) {
+                           Counter c, BufferedWriter i, BufferedWriter i2, String dir, Timer wrapperTimer, Timer graphCreationTimer, Counter ids, HashSet<Predicate> includedViewsSet, int timeout, boolean testing, String output, boolean v, String queryStrategy, int querySleepTime, long statementsSleepTime) {
         this.graphUnion = gu;
         this.reasoner = r;
         this.query = q;
@@ -77,22 +79,29 @@ public class QueryingStream extends Thread {
         this.visualization = v;
         this.queryStrategy = queryStrategy;
         this.querySleepTime = querySleepTime;
+        this.statementsSleepTime = statementsSleepTime;
     }
 
     private void evaluateQuery() {
 
-
-        boolean isLoadByTime = (queryStrategy.equals("time") && (System.currentTimeMillis() >= queryTimeEnd));
-        if ( (this.counter.getValue() != this.lastValue) || isLoadByTime) {
+        long graphSize = graphUnion.size();
+        boolean isLoadByTime = (queryStrategy.equals("time") && (System.currentTimeMillis() >= queryTimeEnd+querySleepTime));
+        boolean isLoadBynbTriples = (queryStrategy.equals("nbTriples") && graphSize >= statements+statementsSleepTime);
+        if ( (this.counter.getValue() != this.lastValue) || isLoadByTime || isLoadBynbTriples) {
             long start = System.currentTimeMillis();
-            if(isLoadByTime)
-                queryTimeEnd = System.currentTimeMillis()+querySleepTime;
+
             Model m = graphUnion;
             if (reasoner != null) {
                 m = ModelFactory.createInfModel (reasoner, m);
             }
-            if(isLoadByTime)
-                System.out.println("run with timeout");
+            if(isLoadByTime) {
+                System.out.println("query run with time");
+                queryTimeEnd = start+querySleepTime;
+            }
+            if(isLoadBynbTriples) {
+                System.out.println("query run with nb of triples");
+                statements = graphSize+statementsSleepTime;
+            }
             if(evaluateQueryThreaded.lockType.equals("SRMW"))
                 m.enterCriticalSection(LockSRMW.READ);
             else

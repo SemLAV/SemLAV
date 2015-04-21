@@ -40,6 +40,7 @@ public class evaluateQueryThreaded {
     private static String queryStrategy;
     public static String lockType;
     private static int querySleepTime;
+    private static long statementsSleepTime;
 	
     public static void main(String[] args) throws Exception {
 		
@@ -55,6 +56,8 @@ public class evaluateQueryThreaded {
         lockType = config.getProperty("lockType");
         queryStrategy = config.getProperty("queryStrategy");
         querySleepTime = Integer.parseInt(config.getProperty("querySleepTime"));
+        statementsSleepTime = Long.parseLong(config.getProperty("nbStatementsQuerySleepTime"));
+
 
         ConjunctiveQuery q = new ConjunctiveQuery(sparqlQuery);
         ArrayList<ConjunctiveQuery> ms = new ArrayList<ConjunctiveQuery>();
@@ -314,7 +317,7 @@ public class evaluateQueryThreaded {
 
 
         Thread tquery = new QueryingStream(graphUnion, null, q, 
-                            executionTimer, numberTimer, includedViews, info, info3, dir, wrapperTimer, graphCreationTimer, ids, includedViewsSet, timeout, testing, output, visualization, queryStrategy, querySleepTime);
+                            executionTimer, numberTimer, includedViews, info, info3, dir, wrapperTimer, graphCreationTimer, ids, includedViewsSet, timeout, testing, output, visualization, queryStrategy, querySleepTime, statementsSleepTime);
         tquery.setPriority(Thread.MAX_PRIORITY);
         tquery.start();
 

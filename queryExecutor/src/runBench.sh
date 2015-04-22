@@ -5,8 +5,7 @@ TARGET_KEY="nbWorker"
 
 for i in $(seq 0 5);do
         $i = $i*5
-        REPLACEMENT_VALUE = $i
-        sed -i -e '/$TARGET_KEY =/ s/= .*/= $REPLACEMENT_VALUE/' $CONFIG_FILE
+        sed -i -e '/$i =/ s/= .*/= $REPLACEMENT_VALUE/' $CONFIG_FILE
         sh runBerlinSemlav.sh
         java processResultsSemLAV /home/semlav/semLAV/expfiles/berlinOutput/TenMillions/510views 510views output /home/montoya/semLAV/code/expfiles/berlinData/TenMil$
         echo $i

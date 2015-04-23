@@ -136,6 +136,8 @@ public class QueryingStream extends Thread {
                         firstResult = true;
                 }
 
+                System.out.println(runQuery);
+
                 if(runQuery) {
 
                     QueryExecution result = QueryExecutionFactory.create(query, m);

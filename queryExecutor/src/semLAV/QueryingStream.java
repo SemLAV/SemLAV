@@ -57,7 +57,7 @@ public class QueryingStream extends Thread {
     private long queryTimeEnd = 0;
     private long statementsSleepTime;
     private long statements = 0;
-    private int nbWorker = 0;
+    private Integer nbWorker = Integer.valueOf(0);
 
     public QueryingStream (Model gu, Reasoner r, Query q, Timer et, Timer t, 
                            Counter c, BufferedWriter i, BufferedWriter i2, String dir, Timer wrapperTimer, Timer graphCreationTimer, Counter ids, HashSet<Predicate> includedViewsSet, int timeout, boolean testing, String output, boolean v, String queryStrategy, int querySleepTime, long statementsSleepTime) {
@@ -89,8 +89,8 @@ public class QueryingStream extends Thread {
         boolean isLoadByTime = (queryStrategy.equals("time") && (System.currentTimeMillis() >= queryTimeEnd+querySleepTime));
         boolean isLoadBynbTriples = (queryStrategy.equals("nbTriples") && graphSize >= statements+statementsSleepTime);
         boolean isLoadByViews = (queryStrategy.equals("views") && this.counter.getValue() != this.lastValue);
-        if ( (isLoadByViews || isLoadByTime || isLoadBynbTriples) && nbWorker < 5) {
-            nbWorker++;
+        if ( (isLoadByViews || isLoadByTime || isLoadBynbTriples) && nbWorker.intValue() < 5) {
+            nbWorker = new Integer(nbWorker.intValue() + 1);
             long start = System.currentTimeMillis();
             if(isLoadByTime) {
                 System.out.println("query run with time");

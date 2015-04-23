@@ -18,7 +18,7 @@ import com.hp.hpl.jena.reasoner.Reasoner;
 public class QueryingStreamWorker implements Runnable {
 
     QueryingStream pool;
-    int nbWorker;
+    Integer nbWorker;
     Model graphUnion;
     Reasoner reasoner;
     boolean testing;
@@ -29,7 +29,7 @@ public class QueryingStreamWorker implements Runnable {
     int id;
     int tempValue;
 
-    public QueryingStreamWorker(QueryingStream pool, int nbWorker, Model graphUnion, Reasoner reasoner, boolean testing, boolean visualization, String fileName, Timer executionTimer, Query query, int id, int tempValue) {
+    public QueryingStreamWorker(QueryingStream pool, Integer nbWorker, Model graphUnion, Reasoner reasoner, boolean testing, boolean visualization, String fileName, Timer executionTimer, Query query, int id, int tempValue) {
         this.pool = pool;
         this.nbWorker = nbWorker;
         this.graphUnion = graphUnion;
@@ -103,6 +103,6 @@ public class QueryingStreamWorker implements Runnable {
             System.out.println("out of memory while querying");
         }
         System.out.println("QueryStop:"+nbWorker);
-        nbWorker--;
+        nbWorker = new Integer(nbWorker.intValue() - 1);
     }
 }

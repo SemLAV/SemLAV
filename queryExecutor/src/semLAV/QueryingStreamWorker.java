@@ -46,6 +46,8 @@ public class QueryingStreamWorker implements Runnable {
     @Override
     public void run() {
 
+        System.out.println("QueryStart:"+nbWorker);
+
         Model m = graphUnion;
         if (reasoner != null) {
             m = ModelFactory.createInfModel(reasoner, m);
@@ -100,6 +102,7 @@ public class QueryingStreamWorker implements Runnable {
             executionMCDSATThreaded.deleteDir(new File(fileName));
             System.out.println("out of memory while querying");
         }
+        System.out.println("QueryStop:"+nbWorker);
         nbWorker--;
     }
 }

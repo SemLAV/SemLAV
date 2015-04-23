@@ -127,7 +127,7 @@ public class QueryingStream extends Thread {
 
                 if(!firstResult && query.isSelectType()) {
                     String q = query.toString();
-                    q.replace("SELECT","ASK");
+                    q = q.replace("SELECT","ASK");
                     Query selectToAsk = QueryFactory.create(q);
                     System.out.print(q);
                     QueryExecution r = QueryExecutionFactory.create(selectToAsk, m);

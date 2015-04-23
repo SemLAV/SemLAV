@@ -133,6 +133,9 @@ public class QueryingStream extends Thread {
                     query.setQueryAskType();
                     result = QueryExecutionFactory.create(selectToAsk, m);
                     runQuery = evaluateAskQuery(result, fileName);
+                    System.out.println("->"+runQuery);
+                    if(runQuery)
+                        firstResult = true;
                 }
 
                 if(runQuery) {

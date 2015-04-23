@@ -129,7 +129,6 @@ public class QueryingStream extends Thread {
                     String q = query.toString();
                     q = q.replace("\n", " ");
                     q = q.replaceAll("SELECT(.*)WHERE","ASK WHERE");
-                    System.out.print(q);
                     Query selectToAsk = QueryFactory.create(q);
                     QueryExecution r = QueryExecutionFactory.create(selectToAsk, m);
                     runQuery = r.execAsk();
@@ -366,6 +365,11 @@ public class QueryingStream extends Thread {
             while (!((timeout > 0 && TimeUnit.MILLISECONDS.toMillis(timer.getTotalTime()) >= timeout) || this.isInterrupted())) {
                 if (testing) {
                     evaluateQuery();
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             System.out.println("endQuery");

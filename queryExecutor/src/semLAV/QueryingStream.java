@@ -127,7 +127,7 @@ public class QueryingStream extends Thread {
 
                 boolean runQuery = true;
 
-                System.out.println("->select"+query.isSelectType());
+                System.out.println("->select"+query.getQueryType());
                 if(!firstResult && query.isSelectType()) {
                     Query selectToAsk = (Query) query.clone();
                     query.setQueryAskType();

@@ -12,7 +12,7 @@ for k in $(seq 0 3);do
     	then
     		lock="SRMW"
     	else
-    		lock="MRMW"
+    		lock="MRSW"
     	fi
     	sed -i "s#lockType=.*#lockType=$lock#" $CONFIG_FILE
 

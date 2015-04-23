@@ -122,16 +122,14 @@ public class QueryingStream extends Thread {
             try {
 
             executionTimer.resume();
-            QueryExecution result = null;
 
                 boolean runQuery = true;
 
-                System.out.println("->select"+query.getQueryType());
                 if(!firstResult && query.isSelectType()) {
                     Query selectToAsk = (Query) query.clone();
                     query.setQueryAskType();
-                    result = QueryExecutionFactory.create(selectToAsk, m);
-                    runQuery = evaluateAskQuery(result, fileName);
+                    QueryExecution result = QueryExecutionFactory.create(selectToAsk, m);
+                    runQuery = result.execAsk();
                     System.out.println("->" + runQuery);
                     if(runQuery)
                         firstResult = true;
@@ -139,7 +137,7 @@ public class QueryingStream extends Thread {
 
                 if(runQuery) {
 
-                    result = QueryExecutionFactory.create(query, m);
+                    QueryExecution result = QueryExecutionFactory.create(query, m);
 
                     int n = 0;
                     if (query.isSelectType()) {
@@ -206,7 +204,7 @@ public class QueryingStream extends Thread {
         timer.resume();
     }
 
-    private boolean evaluateAskQuery(QueryExecution result, String fileName) throws java.io.IOException {
+    private void evaluateAskQuery(QueryExecution result, String fileName) throws java.io.IOException {
         boolean b = result.execAsk();
         executionTimer.stop();
         timer.stop();
@@ -217,7 +215,6 @@ public class QueryingStream extends Thread {
         output.close();
         executionTimer.resume();
         timer.resume();
-        return b;
     }
 
     private int evaluateSelectQuery(QueryExecution result, String fileName, int id, int tempValue, boolean testing) throws java.io.IOException {

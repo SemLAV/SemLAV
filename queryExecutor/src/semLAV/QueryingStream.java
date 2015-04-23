@@ -57,6 +57,7 @@ public class QueryingStream extends Thread {
     private long queryTimeEnd = 0;
     private long statementsSleepTime;
     private long statements = 0;
+    private boolean firstResult = false;
 
     public QueryingStream (Model gu, Reasoner r, Query q, Timer et, Timer t, 
                            Counter c, BufferedWriter i, BufferedWriter i2, String dir, Timer wrapperTimer, Timer graphCreationTimer, Counter ids, HashSet<Predicate> includedViewsSet, int timeout, boolean testing, String output, boolean v, String queryStrategy, int querySleepTime, long statementsSleepTime) {
@@ -121,40 +122,57 @@ public class QueryingStream extends Thread {
             try {
 
             executionTimer.resume();
-            QueryExecution result = QueryExecutionFactory.create(query, m);
-            int n = 0;
-            if (query.isSelectType()) {
-                n = evaluateSelectQuery(result, fileName, id, tempValue, testing);
-            } else if (query.isConstructType()) {
-                evaluateConstructQuery(result, fileName);
-            } else if (query.isDescribeType()) {
-                evaluateDescribeQuery(result, fileName);
-            } else if (query.isAskType()) {
-                evaluateAskQuery(result, fileName);
-            }
+                query.setQueryAskType();
+            QueryExecution result = null;
 
-            executionTimer.stop();
-            m.leaveCriticalSection();
-            timer.stop();
-                System.out.println("query duration "+(System.currentTimeMillis()-start));
+                boolean runQuery = true;
 
-            if (testing) {
-                String includedViewsStr = "";
-                synchronized(includedViewsSet) {
-                    includedViewsStr = includedViewsSet.toString();
+
+                if(!firstResult && query.isSelectType()) {
+                    Query selectToAsk = (Query) query.clone();
+                    query.setQueryAskType();
+                    result = QueryExecutionFactory.create(selectToAsk, m);
+                    runQuery = evaluateAskQuery(result, fileName);
                 }
-                if (visualization) {
-                    message2(n+","+tempValue+","+TimeUnit.MILLISECONDS.toMillis(timer.getTotalTime()));
-                } else {
-                    message(id + "\t" + tempValue + "\t" + TimeUnit.MILLISECONDS.toMillis(wrapperTimer.getTotalTime()) 
-                                            + "\t" + TimeUnit.MILLISECONDS.toMillis(graphCreationTimer.getTotalTime())
-                                            + "\t" + TimeUnit.MILLISECONDS.toMillis(executionTimer.getTotalTime())
-                                            + "\t" +  TimeUnit.MILLISECONDS.toMillis(timer.getTotalTime())
-                                            + "\t" + graphUnion.size() + "\t" + includedViewsStr);
+
+                if(runQuery) {
+
+                    result = QueryExecutionFactory.create(query, m);
+
+                    int n = 0;
+                    if (query.isSelectType()) {
+                        n = evaluateSelectQuery(result, fileName, id, tempValue, testing);
+                    } else if (query.isConstructType()) {
+                        evaluateConstructQuery(result, fileName);
+                    } else if (query.isDescribeType()) {
+                        evaluateDescribeQuery(result, fileName);
+                    } else if (query.isAskType()) {
+                        evaluateAskQuery(result, fileName);
+                    }
+
+                    executionTimer.stop();
+                    m.leaveCriticalSection();
+                    timer.stop();
+                    System.out.println("query duration " + (System.currentTimeMillis() - start));
+
+                    if (testing) {
+                        String includedViewsStr = "";
+                        synchronized (includedViewsSet) {
+                            includedViewsStr = includedViewsSet.toString();
+                        }
+                        if (visualization) {
+                            message2(n + "," + tempValue + "," + TimeUnit.MILLISECONDS.toMillis(timer.getTotalTime()));
+                        } else {
+                            message(id + "\t" + tempValue + "\t" + TimeUnit.MILLISECONDS.toMillis(wrapperTimer.getTotalTime())
+                                    + "\t" + TimeUnit.MILLISECONDS.toMillis(graphCreationTimer.getTotalTime())
+                                    + "\t" + TimeUnit.MILLISECONDS.toMillis(executionTimer.getTotalTime())
+                                    + "\t" + TimeUnit.MILLISECONDS.toMillis(timer.getTotalTime())
+                                    + "\t" + graphUnion.size() + "\t" + includedViewsStr);
+                        }
+                    }
+                    timer.resume();
+                    this.lastValue = tempValue;
                 }
-            }
-            timer.resume();
-            this.lastValue = tempValue;
             } catch (java.io.IOException ioe) {
                 System.err.println("problems writing to "+fileName);
             } catch (java.lang.OutOfMemoryError oome) {
@@ -186,7 +204,7 @@ public class QueryingStream extends Thread {
         timer.resume();
     }
 
-    private void evaluateAskQuery(QueryExecution result, String fileName) throws java.io.IOException {
+    private boolean evaluateAskQuery(QueryExecution result, String fileName) throws java.io.IOException {
         boolean b = result.execAsk();
         executionTimer.stop();
         timer.stop();
@@ -197,6 +215,7 @@ public class QueryingStream extends Thread {
         output.close();
         executionTimer.resume();
         timer.resume();
+        return b;
     }
 
     private int evaluateSelectQuery(QueryExecution result, String fileName, int id, int tempValue, boolean testing) throws java.io.IOException {

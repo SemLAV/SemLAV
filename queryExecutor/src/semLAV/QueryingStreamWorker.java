@@ -103,6 +103,6 @@ public class QueryingStreamWorker implements Runnable {
             System.out.println("out of memory while querying");
         }
         System.out.println("QueryStop:"+nbWorker);
-        nbWorker = new Integer(nbWorker.intValue() - 1);
+        pool.nbWorker--;
     }
 }

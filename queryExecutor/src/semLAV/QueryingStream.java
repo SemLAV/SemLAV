@@ -33,21 +33,21 @@ public class QueryingStream extends Thread {
     private Model graphUnion;
     private Reasoner reasoner;
     private Query query;
-    private Timer timer;
+    public Timer timer;
     private Timer executionTimer;
     private Counter counter;
     private BufferedWriter info;
     private BufferedWriter info2;
     private int time = 1000;
-    private int lastValue = 0;
+    public int lastValue = 0;
     private String dir;
     private boolean queried = false;
     private Counter ids;
     Timer wrapperTimer;
     Timer graphCreationTimer;
     HashSet<Predicate> includedViewsSet;
-    private int id;
-    private int tempValue;
+    public int id;
+    public int tempValue;
     private int timeout;
     private boolean testing;
     private String output;
@@ -57,6 +57,7 @@ public class QueryingStream extends Thread {
     private long queryTimeEnd = 0;
     private long statementsSleepTime;
     private long statements = 0;
+    private int nbWorker = 0;
 
     public QueryingStream (Model gu, Reasoner r, Query q, Timer et, Timer t, 
                            Counter c, BufferedWriter i, BufferedWriter i2, String dir, Timer wrapperTimer, Timer graphCreationTimer, Counter ids, HashSet<Predicate> includedViewsSet, int timeout, boolean testing, String output, boolean v, String queryStrategy, int querySleepTime, long statementsSleepTime) {
@@ -88,14 +89,9 @@ public class QueryingStream extends Thread {
         boolean isLoadByTime = (queryStrategy.equals("time") && (System.currentTimeMillis() >= queryTimeEnd+querySleepTime));
         boolean isLoadBynbTriples = (queryStrategy.equals("nbTriples") && graphSize >= statements+statementsSleepTime);
         boolean isLoadByViews = (queryStrategy.equals("views") && this.counter.getValue() != this.lastValue);
-        if ( isLoadByViews || isLoadByTime || isLoadBynbTriples) {
+        if ( (isLoadByViews || isLoadByTime || isLoadBynbTriples) && nbWorker < 5) {
+            nbWorker++;
             long start = System.currentTimeMillis();
-
-            Model m = graphUnion;
-            if (reasoner != null) {
-                m = ModelFactory.createInfModel (reasoner, m);
-            }
-
             if(isLoadByTime) {
                 System.out.println("query run with time");
                 queryTimeEnd = start+querySleepTime;
@@ -104,13 +100,10 @@ public class QueryingStream extends Thread {
                 System.out.println("query run with nb of triples");
                 statements = graphSize+statementsSleepTime;
             }
-
-            if(evaluateQueryThreaded.lockType().equals("SRMW"))
-                m.enterCriticalSection(LockSRMW.READ);
-            else
-                m.enterCriticalSection(LockMRSW.READ);
             tempValue = this.counter.getValue();
             id = this.ids.getValue();
+            int myId = id;
+            int myTempValue = tempValue;
             this.ids.increase();
             String fileName = "";
             if (testing && !visualization) {
@@ -118,88 +111,49 @@ public class QueryingStream extends Thread {
             } else if (!testing) {
                 fileName = output;
             }
-            try {
-
-            executionTimer.resume();
-            QueryExecution result = QueryExecutionFactory.create(query, m);
-            int n = 0;
-            if (query.isSelectType()) {
-                n = evaluateSelectQuery(result, fileName, id, tempValue, testing);
-            } else if (query.isConstructType()) {
-                evaluateConstructQuery(result, fileName);
-            } else if (query.isDescribeType()) {
-                evaluateDescribeQuery(result, fileName);
-            } else if (query.isAskType()) {
-                evaluateAskQuery(result, fileName);
-            }
-
-            executionTimer.stop();
-            m.leaveCriticalSection();
-            timer.stop();
-                System.out.println("query duration "+(System.currentTimeMillis()-start));
-
-            if (testing) {
-                String includedViewsStr = "";
-                synchronized(includedViewsSet) {
-                    includedViewsStr = includedViewsSet.toString();
-                }
-                if (visualization) {
-                    message2(n+","+tempValue+","+TimeUnit.MILLISECONDS.toMillis(timer.getTotalTime()));
-                } else {
-                    message(id + "\t" + tempValue + "\t" + TimeUnit.MILLISECONDS.toMillis(wrapperTimer.getTotalTime()) 
-                                            + "\t" + TimeUnit.MILLISECONDS.toMillis(graphCreationTimer.getTotalTime())
-                                            + "\t" + TimeUnit.MILLISECONDS.toMillis(executionTimer.getTotalTime())
-                                            + "\t" +  TimeUnit.MILLISECONDS.toMillis(timer.getTotalTime())
-                                            + "\t" + graphUnion.size() + "\t" + includedViewsStr);
-                }
-            }
-            timer.resume();
-            this.lastValue = tempValue;
-            } catch (java.io.IOException ioe) {
-                System.err.println("problems writing to "+fileName);
-            } catch (java.lang.OutOfMemoryError oome) {
-                executionMCDSATThreaded.deleteDir(new File(fileName));
-                System.out.println("out of memory while querying");
-            }
+            lastValue = tempValue;
+            QueryingStreamWorker worker = new QueryingStreamWorker(this, nbWorker, graphUnion, reasoner, testing, visualization, fileName, executionTimer, query, myId, myTempValue);
+            Thread thread = new Thread(worker);
+            thread.start();
         }
     }
 
-    private void evaluateConstructQuery(QueryExecution result, String fileName) throws java.io.IOException {
+    public synchronized void evaluateConstructQuery(QueryExecution result, String fileName) throws java.io.IOException {
         Model m = result.execConstruct();
-        executionTimer.stop();
-        timer.stop();
+        //executionTimer.stop();
+        //timer.stop();
         OutputStream out = new FileOutputStream(fileName);
         m.write(out, "N-TRIPLE");
         out.close();
-        executionTimer.stop();
-        timer.stop();
+        //executionTimer.stop();
+        //timer.stop();
     }
 
-    private void evaluateDescribeQuery(QueryExecution result, String fileName) throws java.io.IOException {
+    public synchronized void evaluateDescribeQuery(QueryExecution result, String fileName) throws java.io.IOException {
         Model m = result.execDescribe();
-        executionTimer.stop();
-        timer.stop();
+        //executionTimer.stop();
+        //timer.stop();
         OutputStream out = new FileOutputStream(fileName);
         m.write(out, "N-TRIPLE");
         out.close();
-        executionTimer.resume();
-        timer.resume();
+        //executionTimer.resume();
+        //timer.resume();
     }
 
-    private void evaluateAskQuery(QueryExecution result, String fileName) throws java.io.IOException {
+    public synchronized void evaluateAskQuery(QueryExecution result, String fileName) throws java.io.IOException {
         boolean b = result.execAsk();
-        executionTimer.stop();
-        timer.stop();
+        //executionTimer.stop();
+        //timer.stop();
         BufferedWriter output = new BufferedWriter(new OutputStreamWriter(
                                       new FileOutputStream(fileName), "UTF-8"));
         output.write(Boolean.toString(b));
         output.flush();
         output.close();
-        executionTimer.resume();
-        timer.resume();
+        //executionTimer.resume();
+        //timer.resume();
     }
 
-    private int evaluateSelectQuery(QueryExecution result, String fileName, int id, int tempValue, boolean testing) throws java.io.IOException {
+    public synchronized int evaluateSelectQuery(QueryExecution result, String fileName, int id, int tempValue, boolean testing) throws java.io.IOException {
 
         executionTimer.stop();
         timer.stop();
@@ -275,7 +229,7 @@ public class QueryingStream extends Thread {
         return i;
     }
 
-    private void message(String s) {
+    public synchronized void message(String s) {
         synchronized(timer) {
             timer.stop();
             try {
@@ -289,7 +243,7 @@ public class QueryingStream extends Thread {
         }
     }
 
-    private void message2(String s) {
+    public synchronized void message2(String s) {
         synchronized(timer) {
             timer.stop();
             try {

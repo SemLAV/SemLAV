@@ -122,7 +122,6 @@ public class QueryingStream extends Thread {
             try {
 
             executionTimer.resume();
-                query.setQueryAskType();
             QueryExecution result = null;
 
                 boolean runQuery = true;

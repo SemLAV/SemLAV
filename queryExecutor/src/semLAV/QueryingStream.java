@@ -129,6 +129,7 @@ public class QueryingStream extends Thread {
                     String q = query.toString();
                     q.replace("SELECT","ASK");
                     Query selectToAsk = QueryFactory.create(q);
+                    System.out.print(q);
                     QueryExecution r = QueryExecutionFactory.create(selectToAsk, m);
                     runQuery = r.execAsk();
                     System.out.println("->" + runQuery);

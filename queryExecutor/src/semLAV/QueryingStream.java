@@ -89,7 +89,7 @@ public class QueryingStream extends Thread {
         boolean isLoadByTime = (queryStrategy.equals("time") && (System.currentTimeMillis() >= queryTimeEnd+querySleepTime));
         boolean isLoadBynbTriples = (queryStrategy.equals("nbTriples") && graphSize >= statements+statementsSleepTime);
         boolean isLoadByViews = (queryStrategy.equals("views") && this.counter.getValue() != this.lastValue);
-        if ( isLoadByViews || isLoadByTime || isLoadBynbTriples) {
+        if ( isLoadByViews || isLoadByTime || isLoadBynbTriples || true) {
             long start = System.currentTimeMillis();
 
             Model m = graphUnion;
@@ -128,13 +128,11 @@ public class QueryingStream extends Thread {
                 if(!firstResult && query.isSelectType()) {
                     String q = query.toString();
                     q = q.replace("\n", " ");
-                    System.out.print(q);
                     q = q.replaceAll("SELECT(.*)WHERE","ASK WHERE");
                     System.out.print(q);
                     Query selectToAsk = QueryFactory.create(q);
                     QueryExecution r = QueryExecutionFactory.create(selectToAsk, m);
                     runQuery = r.execAsk();
-                    System.out.println("->" + runQuery);
                     if(runQuery)
                         firstResult = true;
                 }

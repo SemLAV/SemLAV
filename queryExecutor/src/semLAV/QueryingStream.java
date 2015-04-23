@@ -89,7 +89,7 @@ public class QueryingStream extends Thread {
         boolean isLoadByTime = (queryStrategy.equals("time") && (System.currentTimeMillis() >= queryTimeEnd+querySleepTime));
         boolean isLoadBynbTriples = (queryStrategy.equals("nbTriples") && graphSize >= statements+statementsSleepTime);
         boolean isLoadByViews = (queryStrategy.equals("views") && this.counter.getValue() != this.lastValue);
-        if ( isLoadByViews || isLoadByTime || isLoadBynbTriples || true) {
+        if ( isLoadByViews || isLoadByTime || isLoadBynbTriples) {
             long start = System.currentTimeMillis();
 
             Model m = graphUnion;
@@ -367,11 +367,6 @@ public class QueryingStream extends Thread {
             while (!((timeout > 0 && TimeUnit.MILLISECONDS.toMillis(timer.getTotalTime()) >= timeout) || this.isInterrupted())) {
                 if (testing) {
                     evaluateQuery();
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
                 }
             }
             System.out.println("endQuery");

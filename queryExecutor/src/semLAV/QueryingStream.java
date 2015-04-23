@@ -126,11 +126,11 @@ public class QueryingStream extends Thread {
                 boolean runQuery = true;
 
                 if(!firstResult && query.isSelectType()) {
-                    Query selectToAsk = null;
-                    System.out.println(query.toString());
-                    query.setQueryAskType();
-                    QueryExecution result = QueryExecutionFactory.create(selectToAsk, m);
-                    runQuery = result.execAsk();
+                    String q = query.toString();
+                    q.replace("SELECT","ASK");
+                    Query selectToAsk = QueryFactory.create(q);
+                    QueryExecution r = QueryExecutionFactory.create(selectToAsk, m);
+                    runQuery = r.execAsk();
                     System.out.println("->" + runQuery);
                     if(runQuery)
                         firstResult = true;

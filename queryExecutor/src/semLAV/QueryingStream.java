@@ -133,17 +133,8 @@ public class QueryingStream extends Thread {
 
                  m.leaveCriticalSection();
 
-            
-            try {
-
-           
-
-                if(runQuery) {
-                    if(evaluateQueryThreaded.lockType().equals("SRMW"))
-                m.enterCriticalSection(LockSRMW.READ);
-            else
-                m.enterCriticalSection(LockMRSW.READ);
-tempValue = this.counter.getValue();
+if(runQuery) {
+            tempValue = this.counter.getValue();
             id = this.ids.getValue();
             this.ids.increase();
             String fileName = "";
@@ -152,6 +143,16 @@ tempValue = this.counter.getValue();
             } else if (!testing) {
                 fileName = output;
             }
+            try {
+
+           
+
+                
+                    if(evaluateQueryThreaded.lockType().equals("SRMW"))
+                m.enterCriticalSection(LockSRMW.READ);
+            else
+                m.enterCriticalSection(LockMRSW.READ);
+
                     executionTimer.resume();
                     QueryExecution result = QueryExecutionFactory.create(query, m);
 
@@ -188,13 +189,14 @@ tempValue = this.counter.getValue();
                     }
                     timer.resume();
                     this.lastValue = tempValue;
-                }
+        
             } catch (java.io.IOException ioe) {
                 System.err.println("problems writing to "+fileName);
             } catch (java.lang.OutOfMemoryError oome) {
                 executionMCDSATThreaded.deleteDir(new File(fileName));
                 System.out.println("out of memory while querying");
             }
+                    }
         }
     }
 

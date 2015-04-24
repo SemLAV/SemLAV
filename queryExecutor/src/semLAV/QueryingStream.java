@@ -89,7 +89,7 @@ public class QueryingStream extends Thread {
         boolean isLoadByTime = (queryStrategy.equals("time") && (System.currentTimeMillis() >= queryTimeEnd+querySleepTime));
         boolean isLoadBynbTriples = (queryStrategy.equals("nbTriples") && graphSize >= statements+statementsSleepTime);
         boolean isLoadByViews = (queryStrategy.equals("views") && this.counter.getValue() != this.lastValue);
-        if ( isLoadByViews || isLoadByTime || isLoadBynbTriples) {
+        if (true || isLoadByViews || isLoadByTime || isLoadBynbTriples) {
             long start = System.currentTimeMillis();
 
             Model m = graphUnion;
@@ -125,7 +125,7 @@ public class QueryingStream extends Thread {
 
                 boolean runQuery = true;
 
-                /*if(!firstResult && query.isSelectType()) {
+                if(!firstResult && query.isSelectType()) {
                     String q = query.toString();
                     q = q.replace("\n", " ");
                     q = q.replaceAll("SELECT(.*)WHERE","ASK WHERE");
@@ -134,11 +134,12 @@ public class QueryingStream extends Thread {
                     runQuery = r.execAsk();
                     if(runQuery)
                         firstResult = true;
+                    System.out.println("ok");
                 }
 
-                System.out.println(runQuery);
+                
 
-                if(runQuery) {*/
+                if(runQuery) {
 
                     QueryExecution result = QueryExecutionFactory.create(query, m);
 
@@ -175,7 +176,7 @@ public class QueryingStream extends Thread {
                     }
                     timer.resume();
                     this.lastValue = tempValue;
-                //}
+                }
             } catch (java.io.IOException ioe) {
                 System.err.println("problems writing to "+fileName);
             } catch (java.lang.OutOfMemoryError oome) {

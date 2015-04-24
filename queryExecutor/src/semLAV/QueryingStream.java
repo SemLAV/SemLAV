@@ -125,7 +125,8 @@ public class QueryingStream extends Thread {
                     if(runQuery) {
                         firstResult = true;
                         System.out.println("ok");
-                    }
+                    } else
+                    System.out.println("ko");
                         
                 }
 

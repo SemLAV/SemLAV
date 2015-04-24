@@ -132,9 +132,11 @@ public class QueryingStream extends Thread {
                     Query selectToAsk = QueryFactory.create(q);
                     QueryExecution r = QueryExecutionFactory.create(selectToAsk, m);
                     runQuery = r.execAsk();
-                    if(runQuery)
+                    if(runQuery) {
                         firstResult = true;
                     System.out.println("ok");
+                    }
+                        
                 }
 
                 

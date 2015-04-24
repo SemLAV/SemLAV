@@ -110,18 +110,8 @@ public class QueryingStream extends Thread {
                 m.enterCriticalSection(LockSRMW.READ);
             else
                 m.enterCriticalSection(LockMRSW.READ);
-            tempValue = this.counter.getValue();
-            id = this.ids.getValue();
-            this.ids.increase();
-            String fileName = "";
-            if (testing && !visualization) {
-                fileName = this.dir + "/solution"+id;
-            } else if (!testing) {
-                fileName = output;
-            }
-            try {
 
-            executionTimer.resume();
+ executionTimer.resume();
 
                 boolean runQuery = true;
 
@@ -141,7 +131,27 @@ public class QueryingStream extends Thread {
 
                 executionTimer.stop();
 
+                 m.leaveCriticalSection();
+
+            
+            try {
+
+           
+
                 if(runQuery) {
+                    if(evaluateQueryThreaded.lockType().equals("SRMW"))
+                m.enterCriticalSection(LockSRMW.READ);
+            else
+                m.enterCriticalSection(LockMRSW.READ);
+tempValue = this.counter.getValue();
+            id = this.ids.getValue();
+            this.ids.increase();
+            String fileName = "";
+            if (testing && !visualization) {
+                fileName = this.dir + "/solution"+id;
+            } else if (!testing) {
+                fileName = output;
+            }
                     executionTimer.resume();
                     QueryExecution result = QueryExecutionFactory.create(query, m);
 

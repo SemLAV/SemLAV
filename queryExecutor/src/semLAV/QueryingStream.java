@@ -59,6 +59,8 @@ public class QueryingStream extends Thread {
     private long statements = 0;
     private boolean firstResult = false;
 
+    private long firstResultTime;
+
     public QueryingStream (Model gu, Reasoner r, Query q, Timer et, Timer t, 
                            Counter c, BufferedWriter i, BufferedWriter i2, String dir, Timer wrapperTimer, Timer graphCreationTimer, Counter ids, HashSet<Predicate> includedViewsSet, int timeout, boolean testing, String output, boolean v, String queryStrategy, int querySleepTime, long statementsSleepTime) {
         this.graphUnion = gu;
@@ -124,7 +126,7 @@ public class QueryingStream extends Thread {
                     runQuery = r.execAsk();
                     if(runQuery) {
                         firstResult = true;
-                        System.out.println("ok");
+                        System.out.println("ok" + (System.currentTimeMillis()-firstResultTime));
                     } else
                     System.out.println("ko");
                         
@@ -362,7 +364,7 @@ if(runQuery) {
     }
 
     public void run () {
-
+            firstResultTime = System.currentTimeMillis();
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override
                 public void run() {

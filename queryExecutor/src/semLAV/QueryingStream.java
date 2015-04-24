@@ -89,7 +89,7 @@ public class QueryingStream extends Thread {
         boolean isLoadByTime = (queryStrategy.equals("time") && (System.currentTimeMillis() >= queryTimeEnd+querySleepTime));
         boolean isLoadBynbTriples = (queryStrategy.equals("nbTriples") && graphSize >= statements+statementsSleepTime);
         boolean isLoadByViews = (queryStrategy.equals("views") && this.counter.getValue() != this.lastValue);
-        if (true || isLoadByViews || isLoadByTime || isLoadBynbTriples) {
+        if (isLoadByViews || isLoadByTime || isLoadBynbTriples) {
             long start = System.currentTimeMillis();
 
             Model m = graphUnion;

@@ -52,17 +52,25 @@ public class QueryingStream extends Thread {
     private boolean testing;
     private String output;
     private boolean visualization;
-    private String queryStrategy;
+    //private String queryStrategy;
+    private boolean viewStrategy = false;
+    private boolean timeStrategy = false;
+    private boolean dataStrategy = false;
     private int querySleepTime;
     private long queryTimeEnd = 0;
     private long statementsSleepTime;
     private long statements = 0;
     private boolean firstResult = false;
-
+    private boolean useAsk = false;
     private long firstResultTime;
 
     public QueryingStream (Model gu, Reasoner r, Query q, Timer et, Timer t, 
-                           Counter c, BufferedWriter i, BufferedWriter i2, String dir, Timer wrapperTimer, Timer graphCreationTimer, Counter ids, HashSet<Predicate> includedViewsSet, int timeout, boolean testing, String output, boolean v, String queryStrategy, int querySleepTime, long statementsSleepTime) {
+                           Counter c, BufferedWriter i, BufferedWriter i2, String dir, 
+                           Timer wrapperTimer, Timer graphCreationTimer, Counter ids, 
+                           HashSet<Predicate> includedViewsSet, int timeout, boolean testing, 
+                           String output, boolean v, boolean viewStrategy, boolean timeStrategy, 
+                           boolean dataStrategy, int querySleepTime, 
+                           long statementsSleepTime, boolean ua) {
         this.graphUnion = gu;
         this.reasoner = r;
         this.query = q;
@@ -80,32 +88,47 @@ public class QueryingStream extends Thread {
         this.testing = testing;
         this.output = output;
         this.visualization = v;
-        this.queryStrategy = queryStrategy;
+        //this.queryStrategy = queryStrategy;
+        this.viewStrategy = viewStrategy;
+        this.timeStrategy = timeStrategy;
+        this.dataStrategy = dataStrategy;
         this.querySleepTime = querySleepTime;
         this.statementsSleepTime = statementsSleepTime;
+        this.useAsk = ua;
+        this.statements = 0;
+        this.queryTimeEnd = 0;
     }
 
     private void evaluateQuery() {
 
         long graphSize = graphUnion.size();
-        boolean isLoadByTime = (queryStrategy.equals("time") && (System.currentTimeMillis() >= queryTimeEnd+querySleepTime));
-        boolean isLoadBynbTriples = (queryStrategy.equals("nbTriples") && graphSize >= statements+statementsSleepTime);
-        boolean isLoadByViews = (queryStrategy.equals("views") && this.counter.getValue() != this.lastValue);
-        if (true || isLoadByViews || isLoadByTime || isLoadBynbTriples) {
-            long start = System.currentTimeMillis();
+        //boolean isLoadByTime = (queryStrategy.equals("time") && (System.currentTimeMillis() >= queryTimeEnd+querySleepTime));
+        //boolean isLoadBynbTriples = (queryStrategy.equals("nbTriples") && graphSize >= statements+statementsSleepTime);
+        //boolean isLoadByViews = (queryStrategy.equals("views") && this.counter.getValue() != this.lastValue);
+        //if (isLoadByViews || isLoadByTime || isLoadBynbTriples) {
+        boolean loadByViewOkay = !viewStrategy || (this.counter.getValue() != this.lastValue);
+        timer.stop();
+        long t = this.timer.getTotalTime();
+        timer.resume();
+        boolean loadByTimeOkay = !timeStrategy || (t >= queryTimeEnd+querySleepTime);
+        boolean loadByDataOkay = !dataStrategy || (graphSize >= statements+statementsSleepTime);
+        if ((loadByViewOkay && loadByTimeOkay && loadByDataOkay)) { // || this.isInterrupted()) {
+            long start = t;
 
             Model m = graphUnion;
             if (reasoner != null) {
                 m = ModelFactory.createInfModel (reasoner, m);
             }
 
-            if(isLoadByTime) {
-                System.out.println("query run with time");
-                queryTimeEnd = start+querySleepTime;
+            //if(isLoadByTime) {
+            if (timeStrategy) {
+                //System.out.println("query run with time");
+                queryTimeEnd = start;
             }
-            if(isLoadBynbTriples) {
-                System.out.println("query run with nb of triples");
-                statements = graphSize+statementsSleepTime;
+            //if(isLoadBynbTriples) {
+            if (dataStrategy) {
+                //System.out.println("query run with nb of triples");
+                statements = graphSize;
             }
 
             if(evaluateQueryThreaded.lockType().equals("SRMW"))
@@ -113,11 +136,11 @@ public class QueryingStream extends Thread {
             else
                 m.enterCriticalSection(LockMRSW.READ);
 
- executionTimer.resume();
+            executionTimer.resume();
 
                 boolean runQuery = true;
 
-                if(!firstResult && query.isSelectType()) {
+                if(!firstResult && useAsk && query.isSelectType()) {
                     String q = query.toString();
                     q = q.replace("\n", " ");
                     q = q.replaceAll("SELECT(.*)WHERE","ASK WHERE");
@@ -126,9 +149,9 @@ public class QueryingStream extends Thread {
                     runQuery = r.execAsk();
                     if(runQuery) {
                         firstResult = true;
-                        System.out.println("ok" + (System.currentTimeMillis()-firstResultTime));
-                    } else
-                    System.out.println("ko");
+                        //System.out.println("ok" + (System.currentTimeMillis()-firstResultTime));
+                    } //else
+                    //System.out.println("ko");
                         
                 }
 
@@ -173,7 +196,7 @@ if(runQuery) {
                     executionTimer.stop();
                     m.leaveCriticalSection();
                     timer.stop();
-                    System.out.println("query duration " + (System.currentTimeMillis() - start));
+                    System.out.println("query duration " + (this.timer.getTotalTime() - start));
 
                     if (testing) {
                         String includedViewsStr = "";
@@ -300,7 +323,7 @@ if(runQuery) {
                 executionTimer.resume();
                 timer.resume();
                 if (TimeUnit.MILLISECONDS.toMillis(timer.getTotalTime()) >= timeout) {
-                    System.out.println("-->end");
+                    //System.out.println("-->end");
                     break;
                 }
             }
@@ -386,11 +409,14 @@ if(runQuery) {
                 if (testing) {
                     evaluateQuery();
                     try {
-                        Thread.sleep(10);
-                    } catch (Exception e) {}
+                        Thread.sleep(1);
+                    } catch (Exception e) {
+                        //System.out.println("Querying received exception");
+                        //e.printStackTrace();
+                    }
                 }
             }
-            System.out.println("endQuery");
+            //System.out.println("endQuery");
 
     }
 }

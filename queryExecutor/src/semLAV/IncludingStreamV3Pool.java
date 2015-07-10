@@ -10,7 +10,8 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
+//import java.util.concurrent.ThreadPoolExecutor;
+//import java.util.concurrent.LinkedBlockingQueue;
 // This version includes views considering the arguments
 public class IncludingStreamV3Pool extends Thread {
 
@@ -32,6 +33,7 @@ public class IncludingStreamV3Pool extends Thread {
     boolean[] finished;
     List[] runNow;
     ExecutorService executor;
+    //ThreadPoolExecutor executor;
     boolean finish = false;
     boolean isReseting = false;
     int nbWorker;
@@ -71,6 +73,7 @@ public class IncludingStreamV3Pool extends Thread {
         this.testing = testing;
 
         executor = Executors.newFixedThreadPool(nbWoker);
+        //executor = new ThreadPoolExecutor(keys.length, nbWoker, 5000, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
         for (int j = 0; j < keys.length; j++) {
             finished[j] = false;
             runNow[j] = Collections.synchronizedList(new ArrayList<Integer>());
@@ -108,8 +111,10 @@ public class IncludingStreamV3Pool extends Thread {
 
     protected void workerError(int i, boolean outOfMemmory) {
         isReseting = true;
-        executor.shutdownNow();
+        //executor.shutdownNow();
+        myInterrupt();
         executor = Executors.newFixedThreadPool(this.nbWorker);
+        //executor = new ThreadPoolExecutor(keys.length, nbWorker, 5000, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>()); 
         for (int j = 0; j < keys.length; j++) {
             runNow[j] = Collections.synchronizedList(new ArrayList<Integer>());
         }
@@ -129,7 +134,7 @@ public class IncludingStreamV3Pool extends Thread {
                 this.current[j] = 0;
                 finished[j] = false;
                 totalTimer.stop();
-                System.out.println("reset subgoal "+j);
+                //System.out.println("reset subgoal "+j);
                 totalTimer.resume();
             }
         }
@@ -139,10 +144,49 @@ public class IncludingStreamV3Pool extends Thread {
     public void run () {
 
     try {
-
             while (!(finish || this.isInterrupted())) {
                 while (isReseting) {}
-                for (int i = 0; i < keys.length; i++) {
+                HashMap<Triple,Integer> processedViews = new HashMap<Triple, Integer>();
+                for (Triple k : keys) {
+                    processedViews.put(k, 0);
+                }
+                boolean allProcessed = false;
+                while (!allProcessed && !this.isInterrupted()) {
+                allProcessed = true;
+                for (int i = 0; i < keys.length && !this.isInterrupted(); i++) {
+                    Triple k = this.keys[i];
+                    ArrayList<Predicate> rvs = this.buckets.get(k);
+                    //System.out.println("bucket "+i+" processedViews: "+processedViews.get(k)+". bucketsize: "+rvs.size());
+                    if (processedViews.get(k).equals(rvs.size())) { //finished[i] || (sizeRunNow(i) != 0)) {
+                        continue;
+                    }
+                    int j = processedViews.get(k);
+                    Predicate view = rvs.get(j);
+                    addRunNow(i, j);
+                    Runnable worker = new IncludingStreamV3Worker(this, i, j, view);
+                    synchronized(executor) {
+                      if(!this.isInterrupted()&&!executor.isShutdown()) {
+                        //boolean b = executor.getActiveCount() > 0;
+                        //if (b) {
+                        //    Thread.sleep(2000);
+                        //}
+                        executor.execute(worker);
+                        j++;
+                        //long ts = (long) (rvs.size()-processedViews.get(k));
+                        //System.out.println("threads for bucket "+i+" view "+j+" is going to sleep "+ts+" msecs");
+                        //if (ts > 1)
+                        //    Thread.sleep(ts);
+                        //System.out.println("c'est bon");
+                        processedViews.put(k, j);
+                      }
+                    }
+                    if (j < rvs.size()) {
+                        allProcessed = false;
+                    }
+                }
+                }
+                //Thread.sleep(1000);
+                /*for (int i = 0; i < keys.length; i++) {
                     if (finished[i] || (sizeRunNow(i) != 0)) {
                         continue;
                     }
@@ -152,25 +196,35 @@ public class IncludingStreamV3Pool extends Thread {
                         Predicate view = rvs.get(j);
                         addRunNow(i, j);
                         Runnable worker = new IncludingStreamV3Worker(this, i, j, view);
+                 
                         if(!this.isInterrupted())
                             executor.execute(worker);
+                        
                     }
 
-                }
+                }*/
+
                 finish = true;
                 for (int i = 0; i < keys.length; i++) {
-                    if (!finished[i]) {
+                    //System.out.println("bucket: "+i+" processedViews: "+processedViews.get(this.keys[i])+". finished[i]: "+finished[i]+" this.sizeRunNow(i): "+this.sizeRunNow(i));
+                    Triple k = this.keys[i];
+                    ArrayList<Predicate> rvs = this.buckets.get(k);
+                    if (!(processedViews.get(k)==rvs.size())||!(this.sizeRunNow(i) == 0)) {
                         finish = false;
                         break;
                     }
                 }
                 Thread.sleep(1);
             }
-            System.out.println("endPool");
-            if(!executor.isShutdown())
-                executor.shutdownNow();
+            //System.out.println("endPool");
         } catch (InterruptedException ie) {
-            System.out.println("View inclusion ended");
+            //System.out.println("View inclusion ended");
+            //ie.printStackTrace();
+        } finally {
+            if(!executor.isShutdown())
+                myInterrupt();
+            //System.out.println("finish: "+finish);
+            //System.out.println("this thread has been interrupted: "+this.isInterrupted());
         }
     }
 
@@ -198,7 +252,9 @@ public class IncludingStreamV3Pool extends Thread {
     }
 
     public boolean myInterrupt() {
-        executor.shutdownNow();
+        synchronized(executor) {
+            executor.shutdownNow();
+        }
         return executor.isShutdown();
     }
 }

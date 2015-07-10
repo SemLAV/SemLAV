@@ -37,7 +37,7 @@ public class evaluateQueryThreaded {
 
     private static int nbWorker;
     private static int nbTripleByLock;
-    private static String queryStrategy;
+    //private static String queryStrategy;
     private static String lockType;
     private static int querySleepTime;
     private static long statementsSleepTime;
@@ -59,7 +59,10 @@ public class evaluateQueryThreaded {
         nbWorker = Integer.parseInt(config.getProperty("nbWorker"));
         nbTripleByLock = Integer.parseInt(config.getProperty("nbTripleByLock"));
         lockType = config.getProperty("lockType");
-        queryStrategy = config.getProperty("queryStrategy");
+        //queryStrategy = config.getProperty("queryStrategy");
+        boolean viewStrategy = Boolean.parseBoolean(config.getProperty("viewStrategy"));
+        boolean timeStrategy = Boolean.parseBoolean(config.getProperty("timeStrategy"));
+        boolean dataStrategy = Boolean.parseBoolean(config.getProperty("dataStrategy"));
         querySleepTime = Integer.parseInt(config.getProperty("querySleepTime"));
         statementsSleepTime = Long.parseLong(config.getProperty("nbStatementsQuerySleepTime"));
 
@@ -78,6 +81,7 @@ public class evaluateQueryThreaded {
 
         boolean testing = Boolean.parseBoolean(config.getProperty("testing"));
         boolean visualization = Boolean.parseBoolean(config.getProperty("visualization"));
+        boolean useAsk =  Boolean.parseBoolean(config.getProperty("useAsk"));
         String queryResults = config.getProperty("queryResults");		
         String queryResultsPath = queryResults + "/";
         String file = path + queryResultsPath;
@@ -94,7 +98,7 @@ public class evaluateQueryThreaded {
                                = loadConstants(config.getProperty("constants"), q.getPrefixMapping());
         Catalog catalog = executionMCDSATThreaded.loadCatalog(config, path, n3Dir, sparqlDir, contactSources);
         execute(sparqlQuery, path, queryResultsPath, n3Dir, 
-                groundTruthPath, q, ms, constants, catalog, timeout, sorted, testing, output, visualization, queryStrategy, querySleepTime);
+                groundTruthPath, q, ms, constants, catalog, timeout, sorted, testing, output, visualization, viewStrategy, timeStrategy, dataStrategy, querySleepTime, useAsk);
     }
 
     public static HashMap<String, String> loadConstants(String file, PrefixMapping p) throws Exception {
@@ -268,7 +272,8 @@ public class evaluateQueryThreaded {
                                 String GT_PATH, ConjunctiveQuery cq, 
                                 ArrayList<ConjunctiveQuery> ms, HashMap<String, String> 
                                 constants, Catalog catalog, int timeout, boolean sorted, boolean testing,
-                                String output, boolean visualization, String queryStrategy, int querySleepTime) throws Exception {
+                                String output, boolean visualization, boolean viewStrategy, boolean timeStrategy, 
+                                boolean dataStrategy, int querySleepTime, boolean useAsk) throws Exception {
         Model graphUnion = null;
         if(lockType().equals("SRMW"))
             graphUnion = ModelFactory.createDefaultModel(new LockSRMW());
@@ -316,13 +321,16 @@ public class evaluateQueryThreaded {
         } else {
             buckets = viewSelection3(cq, ms, constants);
         }
+        //System.out.println(buckets);
+        //System.exit(1);
+        //nbWorker = buckets.keySet().size();
         tinput = new IncludingStreamV3Pool(buckets, graphUnion, includedViews, catalog, constants, wrapperTimer, graphCreationTimer, executionTimer, numberTimer, info2, ids, includedViewsSet, testing, nbWorker, nbTripleByLock);
         tinput.start();
 
 
 
         Thread tquery = new QueryingStream(graphUnion, null, q, 
-                            executionTimer, numberTimer, includedViews, info, info3, dir, wrapperTimer, graphCreationTimer, ids, includedViewsSet, timeout, testing, output, visualization, queryStrategy, querySleepTime, statementsSleepTime);
+                            executionTimer, numberTimer, includedViews, info, info3, dir, wrapperTimer, graphCreationTimer, ids, includedViewsSet, timeout, testing, output, visualization, viewStrategy, timeStrategy, dataStrategy, querySleepTime, statementsSleepTime, useAsk);
         tquery.setPriority(Thread.MAX_PRIORITY);
         tquery.start();
 
@@ -331,13 +339,15 @@ public class evaluateQueryThreaded {
             //System.out.println("tquery:"+tquery.isAlive()+" "+tquery.isInterrupted());
             if (!tinput.isAlive()) {
                 tquery.interrupt();
+                //System.out.println("is tquery interrupted: "+tquery.isInterrupted());
                 /*if (!sorted) {
                     tRelViews.interrupt();
                 }*/
             }
             if (!tquery.isAlive())   {
-                ((IncludingStreamV3Pool) tinput).myInterrupt();
+                //System.out.println("Interrupting pool: "+((IncludingStreamV3Pool) tinput).myInterrupt());
                 tinput.interrupt();
+                //System.out.println("is tinput interrupted: "+tinput.isInterrupted());
                 System.out.println("queryKO3");
                 /*if (!sorted) {
                     tRelViews.interrupt();

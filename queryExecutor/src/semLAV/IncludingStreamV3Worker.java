@@ -33,12 +33,12 @@ public class IncludingStreamV3Worker implements Runnable {
     public void run() {
             if (evaluateQueryThreaded.include(pool.includedViewsSet, view, pool.constants)) {
         try {
-            System.out.println(Thread.currentThread().getName()+" :including view: "+view);
+            //System.out.println(Thread.currentThread().getName()+" :including view: "+view);
             long start = System.currentTimeMillis();
             Model tmp =  pool.catalog.getModel(view, pool.constants);
             pool.wrapperTimer.addTime(System.currentTimeMillis()-start);
 
-            System.out.println(Thread.currentThread().getName()+" :temporal model size: "+tmp.size());
+            //System.out.println(Thread.currentThread().getName()+" :temporal model size: "+tmp.size());
             StmtIterator it = tmp.listStatements();
             while(it.hasNext()) {
                 try {

@@ -144,12 +144,12 @@ public class IncludingStreamV3Pool extends Thread {
     public void run () {
 
     try {
+            HashMap<Triple,Integer> processedViews = new HashMap<Triple, Integer>();
+            for (Triple k : keys) {
+                processedViews.put(k, 0);
+            }
             while (!(finish || this.isInterrupted())) {
                 while (isReseting) {}
-                HashMap<Triple,Integer> processedViews = new HashMap<Triple, Integer>();
-                for (Triple k : keys) {
-                    processedViews.put(k, 0);
-                }
                 boolean allProcessed = false;
                 while (!allProcessed && !this.isInterrupted()) {
                 allProcessed = true;
